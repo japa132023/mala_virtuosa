@@ -475,27 +475,96 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
 
     <!-- ── FINANCEIRO ── -->
     <div class="tab-page" id="tab-financeiro">
-      <div class="sec-hdr"><div class="sec-title">📈 Margem & Lucro</div></div>
+
+      <!-- Visão Geral -->
+      <div class="sec-hdr"><div class="sec-title">💼 Visão Geral</div></div>
       <div class="kpi-grid-2" style="margin-bottom:14px">
-        <div class="mini-card sage-bg"><div class="mc-icon">💵</div><div class="mc-val" id="fin-receita" style="font-size:1.1rem">R$0</div><div class="mc-label" style="color:var(--sage)">Receita total</div></div>
-        <div class="mini-card" style="background:var(--err-pale)"><div class="mc-icon">📦</div><div class="mc-val" id="fin-custo" style="font-size:1.1rem;color:var(--err)">R$0</div><div class="mc-label" style="color:var(--err)">Custo total</div></div>
-        <div class="mini-card rose-bg"><div class="mc-icon">💎</div><div class="mc-val" id="fin-lucro" style="font-size:1.1rem;color:var(--rose-dark)">R$0</div><div class="mc-label" style="color:var(--rose-dark)">Lucro bruto</div></div>
-        <div class="mini-card mocha-bg"><div class="mc-icon">📊</div><div class="mc-val" id="fin-roi">0%</div><div class="mc-label" style="color:var(--mocha-dark)">ROI estoque</div></div>
+        <div class="mini-card sage-bg">
+          <div class="mc-icon">💵</div>
+          <div class="mc-val" id="fin-receita" style="font-size:1rem">R$0</div>
+          <div class="mc-label" style="color:var(--sage)">Faturamento total</div>
+        </div>
+        <div class="mini-card rose-bg">
+          <div class="mc-icon">💎</div>
+          <div class="mc-val" id="fin-lucro" style="font-size:1rem;color:var(--rose-dark)">R$0</div>
+          <div class="mc-label" style="color:var(--rose-dark)">Lucro bruto</div>
+        </div>
+        <div class="mini-card" style="background:var(--err-pale)">
+          <div class="mc-icon">🧾</div>
+          <div class="mc-val" id="fin-custo" style="font-size:1rem;color:var(--err)">R$0</div>
+          <div class="mc-label" style="color:var(--err)">Custo das vendas</div>
+        </div>
+        <div class="mini-card mocha-bg">
+          <div class="mc-icon">📊</div>
+          <div class="mc-val" id="fin-margem">0%</div>
+          <div class="mc-label" style="color:var(--mocha-dark)">Margem bruta</div>
+        </div>
       </div>
 
+      <!-- Estoque -->
+      <div class="sec-hdr"><div class="sec-title">📦 Estoque em Capital</div></div>
+      <div class="kpi-grid-2" style="margin-bottom:14px">
+        <div class="mini-card">
+          <div class="mc-icon">🏷️</div>
+          <div class="mc-val" id="fin-est-custo" style="font-size:1rem;color:var(--err)">R$0</div>
+          <div class="mc-label">Custo do estoque</div>
+        </div>
+        <div class="mini-card">
+          <div class="mc-icon">💰</div>
+          <div class="mc-val" id="fin-est-venda" style="font-size:1rem;color:var(--sage)">R$0</div>
+          <div class="mc-label">Potencial de venda</div>
+        </div>
+        <div class="mini-card">
+          <div class="mc-icon">📈</div>
+          <div class="mc-val" id="fin-est-lucro" style="font-size:1rem">R$0</div>
+          <div class="mc-label">Lucro potencial</div>
+        </div>
+        <div class="mini-card">
+          <div class="mc-icon">🔄</div>
+          <div class="mc-val" id="fin-roi">0%</div>
+          <div class="mc-label">ROI do estoque</div>
+        </div>
+      </div>
+
+      <!-- Caderneta a receber -->
+      <div class="sec-hdr"><div class="sec-title">📒 A Receber (Caderneta)</div></div>
+      <div class="kpi-grid-2" style="margin-bottom:6px">
+        <div class="mini-card rose-bg">
+          <div class="mc-icon">📋</div>
+          <div class="mc-val" id="fin-cad-total" style="font-size:1rem;color:var(--rose-dark)">R$0</div>
+          <div class="mc-label" style="color:var(--rose-dark)">Total em aberto</div>
+        </div>
+        <div class="mini-card sage-bg">
+          <div class="mc-icon">✅</div>
+          <div class="mc-val" id="fin-cad-recebido" style="font-size:1rem;color:var(--sage)">R$0</div>
+          <div class="mc-label" style="color:var(--sage)">Já recebido</div>
+        </div>
+      </div>
+      <div class="kpi-grid-3" style="margin-bottom:14px">
+        <div class="mini-card">
+          <div class="mc-val" id="fin-ff-30" style="font-size:1rem">R$0</div>
+          <div class="mc-label">Próx. 30 dias</div>
+        </div>
+        <div class="mini-card">
+          <div class="mc-val" id="fin-ff-60" style="font-size:1rem">R$0</div>
+          <div class="mc-label">Próx. 60 dias</div>
+        </div>
+        <div class="mini-card">
+          <div class="mc-val" id="fin-ff-90" style="font-size:1rem">R$0</div>
+          <div class="mc-label">Próx. 90 dias</div>
+        </div>
+      </div>
+
+      <!-- Margem por categoria -->
       <div class="sec-hdr"><div class="sec-title">🏷️ Margem por Categoria</div></div>
-      <div class="list-card" id="margem-cats" style="padding:14px"></div>
+      <div class="list-card" id="fin-margem-cats" style="padding:14px;margin-bottom:14px"></div>
 
-      <div class="sec-hdr" style="margin-top:8px"><div class="sec-title">💰 Fundos Futuros (Caderneta)</div></div>
-      <div class="kpi-grid-3" style="margin-bottom:10px">
-        <div class="mini-card"><div class="mc-val" id="ff-30" style="font-size:1rem">R$0</div><div class="mc-label">30 dias</div></div>
-        <div class="mini-card"><div class="mc-val" id="ff-60" style="font-size:1rem">R$0</div><div class="mc-label">60 dias</div></div>
-        <div class="mini-card"><div class="mc-val" id="ff-90" style="font-size:1rem">R$0</div><div class="mc-label">90 dias</div></div>
-      </div>
+      <!-- Timeline de recebimentos -->
       <div class="sec-hdr"><div class="sec-title">📅 Próximos Recebimentos</div></div>
-      <div id="ff-timeline"></div>
+      <div id="ff-timeline" style="margin-bottom:14px"></div>
 
-      <div class="sec-hdr" style="margin-top:16px"><div class="sec-title">⚙️ Configurações</div></div>
+      <!-- Configurações -->
+      <div class="sec-hdr" style="margin-top:8px"><div class="sec-title">⚙️ Configurações</div></div>
       <div class="list-card" style="padding:16px;margin-bottom:8px">
         <div style="font-size:.85rem;color:var(--text-2);margin-bottom:12px">Apaga todos os dados do app (clientes, produtos, vendas, caderneta) e retorna ao estado inicial. Esta ação não pode ser desfeita.</div>
         <button class="btn btn-outline" style="width:100%;color:var(--err);border-color:var(--err);font-weight:700;padding:13px" onclick="resetarApp()">🗑️ Resetar App — Apagar Todos os Dados</button>
@@ -1504,58 +1573,91 @@ function detalheCliente(id){
 
 // ═══════════ FINANCEIRO ═══════════
 function renderFinanceiro(){
-  const receita=DB.vendas.reduce((s,v)=>s+v.total,0);
-  let custo=0;DB.vendas.forEach(v=>{const p=DB.produtos.find(p=>p.nome===v.produto);if(p)custo+=p.custo*v.qtd;});
-  const invest=DB.produtos.reduce((s,p)=>s+p.custo*p.qtd,0);
-  const lucro=receita-custo;
-  const roi=invest>0?lucro/invest*100:0;
+  // ── Vendas: receita, custo, lucro, margem ──
+  let receita=0,custoVendas=0;
+  DB.vendas.forEach(v=>{
+    receita+=v.total;
+    const p=DB.produtos.find(x=>x.nome===v.produto);
+    if(p)custoVendas+=p.custo*v.qtd;
+  });
+  const lucro=receita-custoVendas;
+  const margem=receita>0?lucro/receita*100:0;
+
   document.getElementById('fin-receita').textContent=fmtS(receita);
-  document.getElementById('fin-custo').textContent=fmtS(custo);
+  document.getElementById('fin-custo').textContent=fmtS(custoVendas);
   document.getElementById('fin-lucro').textContent=fmtS(lucro);
+  document.getElementById('fin-margem').textContent=fmtP(margem);
+
+  // ── Estoque em capital ──
+  const estCusto=DB.produtos.reduce((s,p)=>s+p.custo*p.qtd,0);
+  const estVenda=DB.produtos.reduce((s,p)=>s+p.preco*p.qtd,0);
+  const estLucro=estVenda-estCusto;
+  const roi=estCusto>0?estLucro/estCusto*100:0;
+
+  document.getElementById('fin-est-custo').textContent=fmtS(estCusto);
+  document.getElementById('fin-est-venda').textContent=fmtS(estVenda);
+  document.getElementById('fin-est-lucro').textContent=fmtS(estLucro);
   document.getElementById('fin-roi').textContent=fmtP(roi);
 
-  // Margem por categoria
+  // ── Caderneta: total aberto, já recebido, projeção ──
+  let cadAberto=0,cadRecebido=0;
+  const proj={30:0,60:0,90:0};
+  const eventos=[];
+  DB.caderneta.filter(c=>c.status==='ativo').forEach(c=>{
+    const cli=getCli(c.clienteId);
+    const itens=c.itens||[];
+    itens.forEach((it,idx)=>{
+      if(it.pago){cadRecebido+=it.valor;}
+      else{
+        cadAberto+=it.valor;
+        const diff=diffDays(hoje(),it.data);
+        if(diff>=0&&diff<=30){proj[30]+=it.valor;eventos.push({dt:it.data,val:it.valor,cli:cli.nome,p:idx+1,t:itens.length});}
+        if(diff>=0&&diff<=60)proj[60]+=it.valor;
+        if(diff>=0&&diff<=90)proj[90]+=it.valor;
+      }
+    });
+  });
+
+  document.getElementById('fin-cad-total').textContent=fmtS(cadAberto);
+  document.getElementById('fin-cad-recebido').textContent=fmtS(cadRecebido);
+  document.getElementById('fin-ff-30').textContent=fmtS(proj[30]);
+  document.getElementById('fin-ff-60').textContent=fmtS(proj[60]);
+  document.getElementById('fin-ff-90').textContent=fmtS(proj[90]);
+
+  // ── Margem por categoria ──
   const cats={};
   DB.vendas.forEach(v=>{
-    const p=DB.produtos.find(p=>p.nome===v.produto);if(!p)return;
-    if(!cats[p.cat])cats[p.cat]={rec:0,custo:0};
-    cats[p.cat].rec+=v.total;cats[p.cat].custo+=p.custo*v.qtd;
+    const p=DB.produtos.find(x=>x.nome===v.produto);if(!p)return;
+    const cat=p.cat||'Outros';
+    if(!cats[cat])cats[cat]={rec:0,custo:0,qtd:0};
+    cats[cat].rec+=v.total;cats[cat].custo+=p.custo*v.qtd;cats[cat].qtd+=v.qtd;
   });
-  const mcEl=document.getElementById('margem-cats');
-  mcEl.innerHTML=Object.entries(cats).map(([cat,d])=>{
+  const mcEl=document.getElementById('fin-margem-cats');
+  mcEl.innerHTML=Object.entries(cats).length?Object.entries(cats).sort((a,b)=>b[1].rec-a[1].rec).map(([cat,d])=>{
     const m=d.rec>0?(d.rec-d.custo)/d.rec*100:0;
     const ci=catIcon[cat]||'🏷️';
-    return `<div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:4px">
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:.83rem;margin-bottom:4px">
         <span style="font-weight:700">${ci} ${cat}</span>
         <span style="font-weight:800;color:${m>40?'var(--sage)':m>25?'var(--mocha)':'var(--err)'}">${fmtP(m)}</span>
       </div>
       <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(m,100)}%"></div></div>
-      <div style="font-size:.68rem;color:var(--muted);margin-top:3px">Receita ${fmt(d.rec)} · Custo ${fmt(d.custo)}</div>
+      <div style="display:flex;gap:10px;font-size:.68rem;color:var(--muted);margin-top:4px">
+        <span>Receita <b>${fmt(d.rec)}</b></span>
+        <span>Custo <b>${fmt(d.custo)}</b></span>
+        <span>Lucro <b style="color:${d.rec-d.custo>=0?'var(--sage)':'var(--err)'}">${fmt(d.rec-d.custo)}</b></span>
+        <span>${d.qtd} un.</span>
+      </div>
     </div>`;
-  }).join('')||'<div style="color:var(--muted);font-size:.85rem">Sem vendas registradas</div>';
+  }).join(''):'<div style="color:var(--muted);font-size:.85rem;text-align:center;padding:8px 0">Sem vendas registradas</div>';
 
-  // Fundos futuros
-  const proj={30:0,60:0,90:0};const eventos=[];
-  DB.caderneta.filter(c=>c.status==='ativo').forEach(c=>{
-    const cli=getCli(c.clienteId);
-    const itens=c.itens||[];
-    itens.filter(i=>!i.pago).forEach((i,idx)=>{
-      const diff=diffDays(hoje(),i.data);
-      if(diff>=0&&diff<=30){proj[30]+=i.valor;eventos.push({dt:i.data,val:i.valor,cli:cli.nome,p:idx+1,t:itens.length});}
-      if(diff>=0&&diff<=60)proj[60]+=i.valor;
-      if(diff>=0&&diff<=90)proj[90]+=i.valor;
-    });
-  });
-  document.getElementById('ff-30').textContent=fmtS(proj[30]);
-  document.getElementById('ff-60').textContent=fmtS(proj[60]);
-  document.getElementById('ff-90').textContent=fmtS(proj[90]);
+  // ── Timeline de recebimentos ──
   eventos.sort((a,b)=>a.dt.localeCompare(b.dt));
-  document.getElementById('ff-timeline').innerHTML=eventos.map(e=>`<div class="timeline-item">
+  document.getElementById('ff-timeline').innerHTML=eventos.length?eventos.map(e=>`<div class="timeline-item">
     <div class="tl-date">${e.dt.split('-').reverse().slice(0,2).join('/')}</div>
-    <div class="tl-desc">${e.cli} <span style="color:var(--muted);font-size:.7rem">· ${e.p}/${e.t}</span></div>
+    <div class="tl-desc">${e.cli} <span style="color:var(--muted);font-size:.7rem">· parcela ${e.p}/${e.t}</span></div>
     <div class="tl-val" style="color:var(--sage)">${fmt(e.val)}</div>
-  </div>`).join('')||`<div class="empty-state"><div class="ei">💰</div><div class="et">Nenhum recebimento projetado</div></div>`;
+  </div>`).join(''):`<div class="empty-state"><div class="ei">📅</div><div class="et">Nenhum recebimento nos próximos 30 dias</div></div>`;
 }
 
 // ═══════════ INIT ═══════════
