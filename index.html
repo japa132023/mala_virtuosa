@@ -617,17 +617,32 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
     <div class="sheet-header"><div class="sheet-title">📒 Novo Crédito</div><button class="sheet-close" onclick="closeModal('modal-credito')">✕</button></div>
     <div class="sheet-body" style="overflow-y:auto">
       <div class="form-group"><label>Cliente</label><select id="cad-cli"></select></div>
-      <div class="form-group"><label>Produto / Descrição</label><input id="cad-desc" placeholder="O que foi comprado"></div>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px">
-        <div style="font-weight:800;font-size:.85rem;color:var(--mocha-dark)">📅 Parcelas</div>
+      <!-- Produtos -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0 8px">
+        <div style="font-weight:800;font-size:.85rem;color:var(--mocha-dark)">📦 Produtos</div>
+        <button type="button" class="btn btn-outline" style="font-size:.75rem;padding:6px 12px" onclick="adicionarProdutoCredito()">+ Adicionar Produto</button>
+      </div>
+      <div id="cad-produtos-lista" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div style="margin-top:10px;padding:10px;background:var(--mocha-pale);border-radius:10px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.82rem;color:var(--mocha-dark);font-weight:700">Total dos produtos</span>
+        <span id="cad-total-produtos" style="font-weight:900;font-size:1rem;color:var(--mocha-dark)">R$ 0,00</span>
+      </div>
+
+      <!-- Parcelas -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px">
+        <div style="font-weight:800;font-size:.85rem;color:var(--rose-dark)">📅 Parcelas</div>
         <button type="button" class="btn btn-outline" style="font-size:.75rem;padding:6px 12px" onclick="adicionarParcela()">+ Adicionar Parcela</button>
       </div>
       <div id="cad-parcelas-lista" style="display:flex;flex-direction:column;gap:8px"></div>
 
-      <div style="margin-top:12px;padding:10px;background:var(--cream);border-radius:10px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:.82rem;color:var(--muted)">Total do crédito</span>
-        <span id="cad-total-calc" style="font-weight:900;font-size:1rem;color:var(--rose-dark)">R$ 0,00</span>
+      <!-- Totais comparativos -->
+      <div style="margin-top:12px;border-radius:12px;overflow:hidden;border:1.5px solid var(--border)">
+        <div style="padding:10px 14px;display:flex;justify-content:space-between;align-items:center;background:var(--cream)">
+          <span style="font-size:.82rem;color:var(--muted)">Total parcelado</span>
+          <span id="cad-total-calc" style="font-weight:900;font-size:1rem;color:var(--rose-dark)">R$ 0,00</span>
+        </div>
+        <div id="cad-diff-bar" style="padding:8px 14px;display:none;font-size:.78rem;font-weight:700;text-align:center"></div>
       </div>
     </div>
     <div class="sheet-footer"><button class="btn btn-outline" style="max-width:100px" onclick="closeModal('modal-credito')">Cancelar</button><button class="btn btn-primary" onclick="salvarCredito()">Registrar</button></div>
@@ -1206,15 +1221,56 @@ function resetarApp(){
     }
   }
 }
-// ── Parcelas livres ──
+// ── Crédito: produtos + parcelas livres ──
 let _parcelasTemp=[];
+let _produtosCredito=[];
+
 function prepCredito(){
-  document.getElementById('cad-cli').innerHTML=DB.clientes.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
-  document.getElementById('cad-desc').value='';
+  document.getElementById('cad-cli').innerHTML=
+    '<option value="">-- Selecione --</option>'+
+    DB.clientes.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
   _parcelasTemp=[];
+  _produtosCredito=[];
+  renderProdutosCredito();
   adicionarParcela();
-  renderParcelasTemp();
 }
+
+// ── Produtos do crédito ──
+function adicionarProdutoCredito(){
+  if(!DB.produtos.length)return alert('Cadastre produtos primeiro.');
+  _produtosCredito.push({prodId:DB.produtos[0].id,qtd:1});
+  renderProdutosCredito();
+}
+function removerProdutoCredito(i){
+  _produtosCredito.splice(i,1);
+  renderProdutosCredito();
+}
+function renderProdutosCredito(){
+  const lista=document.getElementById('cad-produtos-lista');
+  if(!lista)return;
+  const opts=DB.produtos.map(p=>`<option value="${p.id}">${p.nome} — ${fmt(p.preco)}</option>`).join('');
+  lista.innerHTML=_produtosCredito.length
+    ? _produtosCredito.map((item,i)=>`
+      <div style="display:flex;gap:8px;align-items:center;background:var(--cream);border-radius:10px;padding:10px">
+        <select style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:.82rem;font-family:inherit"
+          onchange="_produtosCredito[${i}].prodId=this.value;atualizarTotaisCredito()">${opts.replace(`value="${item.prodId}"`,`value="${item.prodId}" selected`)}</select>
+        <input type="number" min="1" value="${item.qtd}"
+          style="width:54px;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:.9rem;font-family:inherit;text-align:center"
+          oninput="_produtosCredito[${i}].qtd=Math.max(1,parseInt(this.value)||1);this.value=_produtosCredito[${i}].qtd;atualizarTotaisCredito()">
+        <button type="button" onclick="removerProdutoCredito(${i})"
+          style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--err);padding:4px">✕</button>
+      </div>`).join('')
+    : `<div style="color:var(--muted);font-size:.82rem;padding:6px 2px">Nenhum produto adicionado</div>`;
+  atualizarTotaisCredito();
+}
+function totalProdutosCredito(){
+  return _produtosCredito.reduce((s,item)=>{
+    const p=DB.produtos.find(x=>x.id==item.prodId);
+    return s+(p?p.preco*(item.qtd||1):0);
+  },0);
+}
+
+// ── Parcelas ──
 function adicionarParcela(){
   _parcelasTemp.push({valor:'',data:addDays(hoje(),_parcelasTemp.length===0?30:0)});
   renderParcelasTemp();
@@ -1227,34 +1283,71 @@ function renderParcelasTemp(){
   const lista=document.getElementById('cad-parcelas-lista');
   if(!lista)return;
   lista.innerHTML=_parcelasTemp.map((p,i)=>`
-    <div style="display:flex;gap:8px;align-items:center;background:var(--cream);border-radius:10px;padding:10px">
-      <div style="min-width:22px;height:22px;border-radius:50%;background:var(--rose-pale);color:var(--rose-dark);font-weight:900;font-size:.75rem;display:flex;align-items:center;justify-content:center">${i+1}</div>
-      <input type="number" placeholder="Valor R$" min="0" step="0.01" value="${p.valor}"
+    <div style="display:flex;gap:8px;align-items:center;background:var(--rose-pale);border-radius:10px;padding:10px">
+      <div style="min-width:22px;height:22px;border-radius:50%;background:var(--rose-pale);color:var(--rose-dark);font-weight:900;font-size:.75rem;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--rose-dark)">${i+1}</div>
+      <input type="number" placeholder="R$ valor" min="0" step="0.01" value="${p.valor}"
         style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:.9rem;font-family:inherit"
-        oninput="_parcelasTemp[${i}].valor=this.value;atualizarTotalCredito()">
+        oninput="_parcelasTemp[${i}].valor=this.value;atualizarTotaisCredito()">
       <input type="date" value="${p.data}"
         style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:.9rem;font-family:inherit"
         onchange="_parcelasTemp[${i}].data=this.value">
-      ${_parcelasTemp.length>1?`<button type="button" onclick="removerParcela(${i})" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--err);padding:4px">✕</button>`:'<div style="width:24px"></div>'}
+      ${_parcelasTemp.length>1
+        ?`<button type="button" onclick="removerParcela(${i})" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--err);padding:4px">✕</button>`
+        :'<div style="width:24px"></div>'}
     </div>`).join('');
-  atualizarTotalCredito();
+  atualizarTotaisCredito();
 }
-function atualizarTotalCredito(){
-  const total=_parcelasTemp.reduce((s,p)=>s+(parseFloat(p.valor)||0),0);
-  const el=document.getElementById('cad-total-calc');
-  if(el)el.textContent=fmt(total);
+
+// ── Totais e validação em tempo real ──
+function atualizarTotaisCredito(){
+  const totalProd=totalProdutosCredito();
+  const totalParc=_parcelasTemp.reduce((s,p)=>s+(parseFloat(p.valor)||0),0);
+  const elProd=document.getElementById('cad-total-produtos');
+  const elParc=document.getElementById('cad-total-calc');
+  const elDiff=document.getElementById('cad-diff-bar');
+  if(elProd)elProd.textContent=fmt(totalProd);
+  if(elParc)elParc.textContent=fmt(totalParc);
+  if(!elDiff)return;
+  if(!totalProd||!totalParc){elDiff.style.display='none';return;}
+  const diff=totalParc-totalProd;
+  const diffAbs=Math.abs(diff);
+  if(Math.abs(diff)<0.01){
+    elDiff.style.display='block';
+    elDiff.style.background='var(--sage-pale)';
+    elDiff.style.color='#2d5a3d';
+    elDiff.textContent='✅ Valor das parcelas bate com o total dos produtos';
+  } else if(diff>0){
+    elDiff.style.display='block';
+    elDiff.style.background='var(--err-pale)';
+    elDiff.style.color='var(--err)';
+    elDiff.textContent=`⚠️ Parcelas excedem o total em ${fmt(diffAbs)} — reduza os valores`;
+  } else {
+    elDiff.style.display='block';
+    elDiff.style.background='#fff8e1';
+    elDiff.style.color='#7a5c00';
+    elDiff.textContent=`ℹ️ Faltam ${fmt(diffAbs)} para cobrir o total dos produtos`;
+  }
 }
+
 function salvarCredito(){
   const cliId=document.getElementById('cad-cli').value;
-  if(!cliId)return alert('Selecione um cliente');
+  if(!cliId)return alert('Selecione um cliente.');
+  if(!_produtosCredito.length)return alert('Adicione pelo menos um produto.');
   const itens=_parcelasTemp.map(p=>({valor:parseFloat(p.valor)||0,data:p.data,pago:false}));
-  if(itens.some(p=>!p.valor||p.valor<=0))return alert('Informe o valor de cada parcela');
-  if(itens.some(p=>!p.data))return alert('Informe a data de cada parcela');
-  const total=itens.reduce((s,p)=>s+p.valor,0);
+  if(itens.some(p=>!p.valor||p.valor<=0))return alert('Informe o valor de cada parcela.');
+  if(itens.some(p=>!p.data))return alert('Informe a data de cada parcela.');
+  const totalParc=itens.reduce((s,p)=>s+p.valor,0);
+  const totalProd=totalProdutosCredito();
+  if(totalParc-totalProd>0.01)return alert(`O total parcelado (${fmt(totalParc)}) não pode ser maior que o total dos produtos (${fmt(totalProd)}).\n\nAjuste os valores das parcelas.`);
   const cli=DB.clientes.find(c=>c.id==cliId);
-  const usado=DB.caderneta.filter(c=>c.clienteId==cliId&&c.status==='ativo').reduce((s,c)=>s+c.itens.filter(i=>!i.pago).reduce((a,i)=>a+i.valor,0),0);
-  if(cli&&(usado+total)>cli.limite)return alert(`Limite excedido!\nLimite: ${fmt(cli.limite)}\nJá usado: ${fmt(usado)}\nSolicitado: ${fmt(total)}`);
-  DB.caderneta.push({id:Date.now(),clienteId:parseInt(cliId),desc:document.getElementById('cad-desc').value,total,itens,status:'ativo'});
+  const usado=DB.caderneta.filter(c=>c.clienteId==cliId&&c.status==='ativo').reduce((s,c)=>s+cadSaldo(c),0);
+  if(cli&&(usado+totalParc)>cli.limite)return alert(`Limite excedido!\nLimite: ${fmt(cli.limite)}\nJá usado: ${fmt(usado)}\nSolicitado: ${fmt(totalParc)}`);
+  // Monta descrição a partir dos produtos
+  const desc=_produtosCredito.map(item=>{
+    const p=DB.produtos.find(x=>x.id==item.prodId);
+    return p?(item.qtd>1?`${item.qtd}x ${p.nome}`:p.nome):'';
+  }).filter(Boolean).join(', ');
+  DB.caderneta.push({id:Date.now(),clienteId:parseInt(cliId),desc,total:totalProd,itens,status:'ativo'});
   SAVE();closeModal('modal-credito');renderCaderneta();
 }
 
