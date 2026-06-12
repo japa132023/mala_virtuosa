@@ -1253,15 +1253,20 @@ function renderCaderneta(){
     </div>`;
   }).join('')||`<div class="empty-state"><div class="ei">📒</div><div class="et">Nenhum crédito ativo</div></div>`;
 }
-function pagarParcela(cadId,idx){
+function pagarParcela(cadId,idx,origemClienteId){
   const c=DB.caderneta.find(x=>x.id==cadId);
   if(!c)return;
   const item=c.itens[idx];
   if(!item||item.pago)return;
-  if(confirm(`Confirmar pagamento de ${fmt(item.valor)} de ${getCli(c.clienteId).nome}?`)){
+  if(confirm(`Confirmar recebimento de ${fmt(item.valor)}?`)){
     item.pago=true;
     if(c.itens.every(i=>i.pago))c.status='quitado';
-    SAVE();renderCaderneta();
+    SAVE();
+    if(origemClienteId){
+      detalheCliente(origemClienteId);
+    } else {
+      renderCaderneta();
+    }
   }
 }
 function reativarCredito(id){
@@ -1521,11 +1526,26 @@ function detalheCliente(id){
   const inad=cads.some(x=>x.status==='inadimplente');
   const saldoDisp=Math.max(0,c.limite-usado);
   const pct=c.limite>0?Math.min(usado/c.limite*100,100):0;
+
+  // Total comprado em tempo real: vendas diretas + total de cada caderneta
+  const totalVendas=vends.reduce((s,v)=>s+v.total,0);
+  const totalCaderneta=cads.reduce((s,x)=>s+(x.total||cadTotal(x)),0);
+  const totalComprado=totalVendas+totalCaderneta;
+
+  // Recebido vs a receber na caderneta
+  const cadRecebido=cads.reduce((s,x)=>{
+    const itens=x.itens||[];
+    return s+itens.filter(i=>i.pago).reduce((a,i)=>a+i.valor,0);
+  },0);
+  const cadAberto=cads.filter(x=>x.status==='ativo'||x.status==='inadimplente').reduce((s,x)=>s+cadSaldo(x),0);
+
   document.getElementById('detalhe-titulo').textContent='👤 '+c.nome;
   document.getElementById('detalhe-body').innerHTML=`
-    <div class="kpi-grid-2" style="margin-bottom:14px">
-      <div class="mini-card sage-bg"><div class="mc-label">Total comprado</div><div class="mc-val" style="font-size:1.1rem">${fmt(c.totalCompras||0)}</div></div>
-      <div class="mini-card ${inad?'':'rose-bg'}"><div class="mc-label">Saldo crédito</div><div class="mc-val" style="font-size:1.1rem;color:${inad?'var(--err)':saldoDisp>0?'var(--sage)':'var(--mocha)'}">${inad?'Bloq.':fmt(saldoDisp)}</div></div>
+    <div class="kpi-grid-2" style="margin-bottom:10px">
+      <div class="mini-card sage-bg"><div class="mc-label">Total comprado</div><div class="mc-val" style="font-size:1rem">${fmt(totalComprado)}</div></div>
+      <div class="mini-card ${inad?'':'rose-bg'}"><div class="mc-label">Limite disponível</div><div class="mc-val" style="font-size:1rem;color:${inad?'var(--err)':saldoDisp>0?'var(--sage)':'var(--mocha)'}">${inad?'Bloq.':fmt(saldoDisp)}</div></div>
+      <div class="mini-card"><div class="mc-label">✅ Já recebido</div><div class="mc-val" style="font-size:1rem;color:var(--sage)">${fmt(cadRecebido)}</div></div>
+      <div class="mini-card" style="background:var(--err-pale)"><div class="mc-label">⏳ A receber</div><div class="mc-val" style="font-size:1rem;color:var(--err)">${fmt(cadAberto)}</div></div>
     </div>
     <div style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:4px"><span>Crédito usado</span><span>${fmt(usado)} / ${fmt(c.limite)}</span></div>
@@ -1541,26 +1561,26 @@ function detalheCliente(id){
       const itensHtml=(x.itens||[]).map((it,idx)=>{
         const df=diffDays(hoje(),it.data);
         const vc=it.pago?'badge-gray':df<0?'badge-red':df<=5?'badge-gold':'badge-green';
-        const vt=it.pago?'Pago':df<0?`Venceu há ${Math.abs(df)}d`:df===0?'Hoje':`Em ${df}d`;
-        return `<div style="display:flex;gap:6px;align-items:center;font-size:.75rem;padding:3px 0;opacity:${it.pago?.45:1}">
-          <span style="min-width:14px;color:var(--muted)">${idx+1}</span>
+        const vt=it.pago?'✅ Pago':df<0?`Venceu há ${Math.abs(df)}d`:df===0?'Hoje':`Em ${df}d`;
+        return `<div style="display:flex;gap:6px;align-items:center;font-size:.75rem;padding:5px 0;border-bottom:1px solid var(--border);opacity:${it.pago?.5:1}">
+          <span style="min-width:16px;color:var(--muted);font-weight:700">${idx+1}</span>
           <span style="flex:1">${it.data.split('-').reverse().join('/')}</span>
           <span style="font-weight:800">${fmt(it.valor)}</span>
           <span class="li-badge ${vc}" style="font-size:.58rem">${vt}</span>
-          ${!it.pago?`<button style="background:var(--sage-pale);color:#3a6a48;border:none;border-radius:6px;padding:2px 6px;font-size:.65rem;font-weight:700;cursor:pointer" onclick="pagarParcela(${x.id},${idx});closeModal('modal-detalhe');detalheCliente(${id})">✅</button>`:''}
+          ${!it.pago?`<button style="background:var(--sage-pale);color:#2d5a3d;border:1.5px solid var(--sage);border-radius:8px;padding:4px 10px;font-size:.7rem;font-weight:800;cursor:pointer" onclick="pagarParcela(${x.id},${idx},${id})">Receber</button>`:''}
         </div>`;
       }).join('');
-      return `<div class="timeline-item" style="margin-bottom:8px;flex-direction:column;align-items:stretch">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <strong style="font-size:.82rem">${x.desc}</strong>
+      return `<div class="list-card" style="margin-bottom:8px;padding:10px 12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <strong style="font-size:.84rem">${x.desc}</strong>
           <div style="display:flex;gap:6px;align-items:center">
-            <span style="font-size:.75rem;font-weight:800">${fmt(sl)}</span>
+            <span style="font-size:.8rem;font-weight:800;color:${sl>0?'var(--err)':'var(--sage)'}">${fmt(sl)}</span>
             <div class="li-badge ${x.status==='ativo'?'badge-green':'badge-red'}">${pg}/${tot}</div>
           </div>
         </div>
         ${itensHtml}
       </div>`;
-    }).join('')||'<div style="color:var(--muted);font-size:.82rem">Sem crédito ativo</div>'}
+    }).join('')||'<div style="color:var(--muted);font-size:.82rem;padding:4px 0">Sem crédito ativo</div>'}
     <div style="font-size:.72rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mocha-dark);margin:14px 0 8px">🛒 Últimas compras</div>
     ${vends.slice(-5).reverse().map(v=>`<div class="timeline-item" style="margin-bottom:6px">
       <div class="tl-date">${v.data.split('-').reverse().join('/')}</div>
