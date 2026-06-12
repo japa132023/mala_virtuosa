@@ -494,6 +494,12 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
       </div>
       <div class="sec-hdr"><div class="sec-title">📅 Próximos Recebimentos</div></div>
       <div id="ff-timeline"></div>
+
+      <div class="sec-hdr" style="margin-top:16px"><div class="sec-title">⚙️ Configurações</div></div>
+      <div class="list-card" style="padding:16px;margin-bottom:8px">
+        <div style="font-size:.85rem;color:var(--text-2);margin-bottom:12px">Apaga todos os dados do app (clientes, produtos, vendas, caderneta) e retorna ao estado inicial. Esta ação não pode ser desfeita.</div>
+        <button class="btn btn-outline" style="width:100%;color:var(--err);border-color:var(--err);font-weight:700;padding:13px" onclick="resetarApp()">🗑️ Resetar App — Apagar Todos os Dados</button>
+      </div>
     </div>
 
   </div><!-- /page-body -->
@@ -1151,6 +1157,15 @@ function excluirCredito(id){
 function excluirVenda(id){
   if(confirm('Excluir esta venda? Esta ação não pode ser desfeita.')){
     DB.vendas=DB.vendas.filter(v=>v.id!=id);SAVE();renderTab('vendas');updateHeader();
+  }
+}
+function resetarApp(){
+  if(confirm('⚠️ ATENÇÃO: Todos os dados serão apagados permanentemente.\n\nClientes, produtos, vendas e caderneta serão removidos.\n\nTem certeza?')){
+    if(confirm('Confirmação final: apagar TUDO e começar do zero?')){
+      localStorage.removeItem('mv-db');
+      localStorage.removeItem('mv-pin');
+      location.reload();
+    }
   }
 }
 function prepCredito(){
