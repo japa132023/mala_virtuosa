@@ -1245,21 +1245,58 @@ function removerProdutoCredito(i){
   _produtosCredito.splice(i,1);
   renderProdutosCredito();
 }
+function mudarQtdCredito(i,val){
+  const raw=parseInt(val);
+  const item=_produtosCredito[i];
+  const prod=DB.produtos.find(x=>x.id==item.prodId);
+  const estoque=prod?prod.qtd:0;
+  if(isNaN(raw)||raw<1){item.qtd=1;}
+  else if(raw>estoque){
+    item.qtd=estoque;
+    alert(`Estoque insuficiente! Disponível: ${estoque} ${estoque===1?'unidade':'unidades'} de "${prod.nome}".`);
+  } else {
+    item.qtd=raw;
+  }
+  renderProdutosCredito();
+}
+function mudarProdutoCredito(i,prodId){
+  _produtosCredito[i].prodId=prodId;
+  _produtosCredito[i].qtd=1;
+  renderProdutosCredito();
+}
 function renderProdutosCredito(){
   const lista=document.getElementById('cad-produtos-lista');
   if(!lista)return;
-  const opts=DB.produtos.map(p=>`<option value="${p.id}">${p.nome} — ${fmt(p.preco)}</option>`).join('');
   lista.innerHTML=_produtosCredito.length
-    ? _produtosCredito.map((item,i)=>`
-      <div style="display:flex;gap:8px;align-items:center;background:var(--cream);border-radius:10px;padding:10px">
-        <select style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:.82rem;font-family:inherit"
-          onchange="_produtosCredito[${i}].prodId=this.value;atualizarTotaisCredito()">${opts.replace(`value="${item.prodId}"`,`value="${item.prodId}" selected`)}</select>
-        <input type="number" min="1" value="${item.qtd}"
-          style="width:54px;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:.9rem;font-family:inherit;text-align:center"
-          oninput="_produtosCredito[${i}].qtd=Math.max(1,parseInt(this.value)||1);this.value=_produtosCredito[${i}].qtd;atualizarTotaisCredito()">
-        <button type="button" onclick="removerProdutoCredito(${i})"
-          style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--err);padding:4px">✕</button>
-      </div>`).join('')
+    ? _produtosCredito.map((item,i)=>{
+        const prod=DB.produtos.find(x=>x.id==item.prodId);
+        const estoque=prod?prod.qtd:0;
+        const semEstoque=estoque===0;
+        const opts=DB.produtos.map(p=>`<option value="${p.id}"${p.id==item.prodId?' selected':''}>${p.nome} — ${fmt(p.preco)}${p.qtd===0?' (Esgotado)':p.qtd<=p.qtdMin?' (Baixo: '+p.qtd+')':''}</option>`).join('');
+        return `<div style="display:flex;flex-direction:column;gap:6px;background:var(--cream);border-radius:10px;padding:10px;border:1.5px solid ${semEstoque?'var(--err)':'var(--border)'}">
+          <div style="display:flex;gap:8px;align-items:center">
+            <select style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:.82rem;font-family:inherit"
+              onchange="mudarProdutoCredito(${i},this.value)">${opts}</select>
+            <button type="button" onclick="removerProdutoCredito(${i})"
+              style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--err);padding:4px;flex-shrink:0">✕</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="display:flex;align-items:center;gap:6px;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;background:#fff">
+              <button type="button"
+                style="padding:7px 12px;background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--mocha-dark);font-weight:900"
+                onclick="mudarQtdCredito(${i},${item.qtd-1})">−</button>
+              <span style="min-width:28px;text-align:center;font-weight:800;font-size:.95rem">${item.qtd}</span>
+              <button type="button"
+                style="padding:7px 12px;background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--mocha-dark);font-weight:900"
+                onclick="mudarQtdCredito(${i},${item.qtd+1})">+</button>
+            </div>
+            <span style="font-size:.78rem;color:${semEstoque?'var(--err)':item.qtd>=estoque?'#b36a00':'var(--muted)'}">
+              ${semEstoque?'⛔ Sem estoque':`Estoque: ${estoque} un.`}
+            </span>
+            <span style="margin-left:auto;font-weight:800;font-size:.9rem;color:var(--mocha-dark)">${prod?fmt(prod.preco*item.qtd):'R$0'}</span>
+          </div>
+        </div>`;
+      }).join('')
     : `<div style="color:var(--muted);font-size:.82rem;padding:6px 2px">Nenhum produto adicionado</div>`;
   atualizarTotaisCredito();
 }
@@ -1342,9 +1379,16 @@ function salvarCredito(){
   const cli=DB.clientes.find(c=>c.id==cliId);
   const usado=DB.caderneta.filter(c=>c.clienteId==cliId&&c.status==='ativo').reduce((s,c)=>s+cadSaldo(c),0);
   if(cli&&(usado+totalParc)>cli.limite)return alert(`Limite excedido!\nLimite: ${fmt(cli.limite)}\nJá usado: ${fmt(usado)}\nSolicitado: ${fmt(totalParc)}`);
-  // Monta descrição a partir dos produtos
+  // Valida estoque
+  for(const item of _produtosCredito){
+    const p=DB.produtos.find(x=>x.id==item.prodId);
+    if(!p)return alert('Produto não encontrado. Revise os itens.');
+    if(item.qtd>p.qtd)return alert(`Estoque insuficiente!\n"${p.nome}": disponível ${p.qtd} un., solicitado ${item.qtd} un.`);
+  }
+  // Monta descrição e desconta estoque
   const desc=_produtosCredito.map(item=>{
     const p=DB.produtos.find(x=>x.id==item.prodId);
+    if(p){p.qtd-=item.qtd;}
     return p?(item.qtd>1?`${item.qtd}x ${p.nome}`:p.nome):'';
   }).filter(Boolean).join(', ');
   DB.caderneta.push({id:Date.now(),clienteId:parseInt(cliId),desc,total:totalProd,itens,status:'ativo'});
