@@ -597,6 +597,7 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
     <div class="sheet-handle"></div>
     <div class="sheet-header"><div class="sheet-title">👤 Cliente</div><button class="sheet-close" onclick="closeModal('modal-cliente')">✕</button></div>
     <div class="sheet-body">
+      <button id="btn-agenda" class="btn" style="width:100%;margin-bottom:14px;background:var(--sage-pale);color:#2d5a3d;font-weight:800;padding:12px;display:none" onclick="importarDaAgenda()">📱 Importar da Agenda</button>
       <div class="form-group"><label>Nome Completo</label><input id="c-nome" placeholder="Nome da cliente"></div>
       <div class="form-row2">
         <div class="form-group"><label>Telefone / WhatsApp</label><input id="c-tel" placeholder="(00) 00000-0000"></div>
@@ -1218,7 +1219,23 @@ function renderListaClientes(){
     </div>`;
   }).join('')||`<div class="empty-state"><div class="ei">👥</div><div class="et">Nenhuma cliente encontrada</div></div>`;
 }
-function prepCliente(){['c-nome','c-tel','c-cidade','c-obs'].forEach(i=>document.getElementById(i).value='');document.getElementById('c-limite').value='500';}
+function prepCliente(){
+  ['c-nome','c-tel','c-cidade','c-obs'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('c-limite').value='500';
+  // Mostra botão agenda apenas se a API estiver disponível (Android Chrome / iOS Safari)
+  document.getElementById('btn-agenda').style.display='contacts' in navigator?'block':'none';
+}
+async function importarDaAgenda(){
+  try{
+    const contato=await navigator.contacts.select(['name','tel'],{multiple:false});
+    if(!contato||!contato.length)return;
+    const c=contato[0];
+    if(c.name&&c.name.length)document.getElementById('c-nome').value=c.name[0];
+    if(c.tel&&c.tel.length)document.getElementById('c-tel').value=c.tel[0];
+  }catch(e){
+    if(e.name!=='AbortError')alert('Não foi possível acessar a agenda: '+e.message);
+  }
+}
 function salvarCliente(){
   const nome=document.getElementById('c-nome').value.trim();
   if(!nome)return alert('Informe o nome');
