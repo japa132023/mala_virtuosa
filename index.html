@@ -612,22 +612,23 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
 
 <!-- Modal Novo Crédito Caderneta -->
 <div class="modal-bg" id="modal-credito">
-  <div class="modal-sheet">
+  <div class="modal-sheet" style="max-height:92vh">
     <div class="sheet-handle"></div>
     <div class="sheet-header"><div class="sheet-title">📒 Novo Crédito</div><button class="sheet-close" onclick="closeModal('modal-credito')">✕</button></div>
-    <div class="sheet-body">
+    <div class="sheet-body" style="overflow-y:auto">
       <div class="form-group"><label>Cliente</label><select id="cad-cli"></select></div>
-      <div class="form-row2">
-        <div class="form-group"><label>Valor Total (R$)</label><input id="cad-val" type="number" oninput="calcCadParc()"></div>
-        <div class="form-group"><label>Parcelas</label>
-          <select id="cad-parc" onchange="calcCadParc()"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6">6x</option></select>
-        </div>
-      </div>
-      <div class="form-row2">
-        <div class="form-group"><label>Valor parcela</label><input id="cad-parc-val" readonly style="background:var(--cream);font-weight:800"></div>
-        <div class="form-group"><label>1º Vencimento</label><input id="cad-venc" type="date"></div>
-      </div>
       <div class="form-group"><label>Produto / Descrição</label><input id="cad-desc" placeholder="O que foi comprado"></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px">
+        <div style="font-weight:800;font-size:.85rem;color:var(--mocha-dark)">📅 Parcelas</div>
+        <button type="button" class="btn btn-outline" style="font-size:.75rem;padding:6px 12px" onclick="adicionarParcela()">+ Adicionar Parcela</button>
+      </div>
+      <div id="cad-parcelas-lista" style="display:flex;flex-direction:column;gap:8px"></div>
+
+      <div style="margin-top:12px;padding:10px;background:var(--cream);border-radius:10px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.82rem;color:var(--muted)">Total do crédito</span>
+        <span id="cad-total-calc" style="font-weight:900;font-size:1rem;color:var(--rose-dark)">R$ 0,00</span>
+      </div>
     </div>
     <div class="sheet-footer"><button class="btn btn-outline" style="max-width:100px" onclick="closeModal('modal-credito')">Cancelar</button><button class="btn btn-primary" onclick="salvarCredito()">Registrar</button></div>
   </div>
@@ -823,7 +824,7 @@ function updateHeader(){
   const mes=hoje().slice(0,7);
   const fat=DB.vendas.filter(v=>v.data.startsWith(mes)).reduce((s,v)=>s+v.total,0);
   let custo=0;DB.vendas.filter(v=>v.data.startsWith(mes)).forEach(v=>{const p=DB.produtos.find(p=>p.nome===v.produto);if(p)custo+=p.custo*v.qtd;});
-  const receber=DB.caderneta.filter(c=>c.status==='ativo').reduce((s,c)=>s+c.parcelaVal*(c.parcelas-c.pagas),0);
+  const receber=DB.caderneta.filter(c=>c.status==='ativo').reduce((s,c)=>s+cadSaldo(c),0);
   document.getElementById('hdr-fat').textContent=fmtS(fat);
   document.getElementById('hdr-lucro').textContent=fmtS(fat-custo);
   document.getElementById('hdr-receber').textContent=fmtS(receber);
@@ -850,9 +851,11 @@ function renderInicio(){
   DB.caderneta.filter(c=>c.status==='inadimplente').forEach(c=>alerts.push({t:'danger',m:`Inadimplente: ${getCli(c.clienteId).nome}`}));
   // check vencendo em 3 dias
   DB.caderneta.filter(c=>c.status==='ativo').forEach(c=>{
-    const venc=addDays(c.vencBase,c.pagas*30);
-    const diff=diffDays(h,venc);
-    if(diff>=0&&diff<=3)alerts.push({t:'warn',m:`Vence em ${diff}d: ${getCli(c.clienteId).nome} (${fmt(c.parcelaVal)})`});
+    const itens=c.itens||[];
+    itens.filter(i=>!i.pago).forEach(i=>{
+      const diff=diffDays(h,i.data);
+      if(diff>=0&&diff<=3)alerts.push({t:'warn',m:`Vence em ${diff}d: ${getCli(c.clienteId).nome} (${fmt(i.valor)})`});
+    });
   });
 
   if(alerts.length===0){
@@ -876,11 +879,11 @@ function renderInicio(){
   // Próximos recebimentos
   const prox=[];
   DB.caderneta.filter(c=>c.status==='ativo').forEach(c=>{
-    for(let i=0;i<(c.parcelas-c.pagas);i++){
-      const dt=addDays(c.vencBase,i*30);
-      const diff=diffDays(h,dt);
-      if(diff>=0&&diff<=30)prox.push({dt,val:c.parcelaVal,cli:getCli(c.clienteId).nome});
-    }
+    const itens=c.itens||[];
+    itens.filter(i=>!i.pago).forEach(i=>{
+      const diff=diffDays(h,i.data);
+      if(diff>=0&&diff<=30)prox.push({dt:i.data,val:i.valor,cli:getCli(c.clienteId).nome});
+    });
   });
   prox.sort((a,b)=>a.dt.localeCompare(b.dt));
   const pe=document.getElementById('prox-recebimentos');
@@ -1077,18 +1080,36 @@ function salvarVenda(){
   DB.vendas.push({id:Date.now(),data:hoje(),clienteId:parseInt(cliId),produto:prod.nome,qtd,preco,total,pgto,status:pgto==='parcelado'?'parcial':'pago'});
   if(pgto==='parcelado'){
     const np=parseInt(document.getElementById('v-parcelas').value)||2;
-    DB.caderneta.push({id:Date.now()+1,clienteId:parseInt(cliId),desc:prod.nome,total,parcelas:np,parcelaVal:total/np,vencBase:addDays(hoje(),30),pagas:0,status:'ativo'});
+    const valParc=parseFloat((total/np).toFixed(2));
+    const itensVenda=Array.from({length:np},(_,i)=>({valor:valParc,data:addDays(hoje(),(i+1)*30),pago:false}));
+    DB.caderneta.push({id:Date.now()+1,clienteId:parseInt(cliId),desc:prod.nome,total,itens:itensVenda,status:'ativo'});
   }
   SAVE();closeModal('modal-venda');renderTab(currentTab);updateHeader();
 }
 
 // ═══════════ CADERNETA ═══════════
+// helpers compatíveis com estrutura nova (itens[]) e legada (parcelas/parcelaVal)
+function cadSaldo(c){
+  if(c.itens)return c.itens.filter(i=>!i.pago).reduce((s,i)=>s+i.valor,0);
+  return c.parcelaVal*(c.parcelas-c.pagas);
+}
+function cadProxVenc(c){
+  if(c.itens){const pend=c.itens.filter(i=>!i.pago).sort((a,b)=>a.data.localeCompare(b.data));return pend.length?pend[0].data:null;}
+  return addDays(c.vencBase,c.pagas*30);
+}
+function cadPagas(c){return c.itens?c.itens.filter(i=>i.pago).length:c.pagas;}
+function cadTotal(c){return c.itens?c.itens.length:(c.parcelas||1);}
+
 function renderCaderneta(){
   const ativos=DB.caderneta.filter(c=>c.status==='ativo');
   const inad=DB.caderneta.filter(c=>c.status==='inadimplente');
-  const totalFiado=DB.caderneta.reduce((s,c)=>s+c.parcelaVal*(c.parcelas-c.pagas),0);
+  const totalFiado=DB.caderneta.filter(c=>c.status!=='quitado').reduce((s,c)=>s+cadSaldo(c),0);
+  const h=hoje();
   let rec30=0;
-  ativos.forEach(c=>{for(let i=0;i<(c.parcelas-c.pagas);i++){const dt=addDays(c.vencBase,i*30);if(diffDays(hoje(),dt)<=30&&diffDays(hoje(),dt)>=0)rec30+=c.parcelaVal;}});
+  ativos.forEach(c=>{
+    const itens=c.itens||[];
+    itens.filter(i=>!i.pago).forEach(i=>{const d=diffDays(h,i.data);if(d>=0&&d<=30)rec30+=i.valor;});
+  });
   document.getElementById('cad-total').textContent=fmtS(totalFiado);
   document.getElementById('cad-30d').textContent=fmtS(rec30);
   document.getElementById('cad-ativos').textContent=ativos.length;
@@ -1098,15 +1119,13 @@ function renderCaderneta(){
   const inadEl=document.getElementById('lista-inad-cad');
   inadEl.innerHTML=inad.length?inad.map(c=>{
     const cli=getCli(c.clienteId);
-    const saldo=c.parcelaVal*(c.parcelas-c.pagas);
-    const dias=diffDays(c.vencBase,hoje());
+    const saldo=cadSaldo(c);
     return `<div class="inad-card" style="margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div><div style="font-weight:800;font-size:.9rem">${cli.nome}</div><div style="font-size:.72rem;color:var(--err)">Em atraso há ${dias} dias</div></div>
+        <div><div style="font-weight:800;font-size:.9rem">${cli.nome}</div><div style="font-size:.72rem;color:var(--err)">${c.desc}</div></div>
         <div style="text-align:right"><div style="font-weight:800;color:var(--err)">${fmt(saldo)}</div><div class="li-badge badge-red">Inadimplente</div></div>
       </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" style="font-size:.75rem;padding:9px" onclick="pagarParcela(${c.id})">✅ Pagar</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-outline" style="font-size:.75rem;padding:9px" onclick="reativarCredito(${c.id})">🔓 Reativar</button>
         ${cli.tel?`<a href="tel:${cli.tel}" class="btn btn-outline" style="font-size:.75rem;padding:9px">📞</a>`:''}
         <button class="btn btn-outline" style="font-size:.75rem;padding:9px;color:var(--err);border-color:var(--err)" onclick="excluirCredito(${c.id})">🗑️ Excluir</button>
@@ -1114,40 +1133,58 @@ function renderCaderneta(){
     </div>`;
   }).join(''):`<div class="alert alert-success" style="margin-bottom:8px">✅ Nenhuma cliente inadimplente!</div>`;
 
-  // Lista caderneta
+  // Lista caderneta ativa — expande parcelas
   document.getElementById('lista-caderneta').innerHTML=ativos.map(c=>{
     const cli=getCli(c.clienteId);
-    const saldo=(c.parcelas-c.pagas)*c.parcelaVal;
-    const proxVenc=addDays(c.vencBase,c.pagas*30);
-    const dias=diffDays(hoje(),proxVenc);
-    const vc=dias<0?'badge-red':dias<=5?'badge-gold':'badge-green';
-    const vt=dias<0?`Venceu há ${Math.abs(dias)}d`:dias===0?'Vence hoje':`Em ${dias} dias`;
-    return `<div class="list-item" onclick="detalheCliente(${cli.id})">
-      <div class="li-icon rose">📒</div>
-      <div class="li-body">
-        <div class="li-name">${cli.nome}</div>
-        <div class="li-sub">${c.desc} · ${c.pagas}/${c.parcelas} pagas</div>
-        <div class="li-sub" style="margin-top:3px"><span class="li-badge ${vc}">${vt}</span></div>
+    const saldo=cadSaldo(c);
+    const pagas=cadPagas(c);
+    const total=cadTotal(c);
+    const itens=c.itens||[];
+    const parcelasHtml=itens.map((item,idx)=>{
+      const dias=diffDays(h,item.data);
+      const vc=item.pago?'badge-gray':dias<0?'badge-red':dias<=5?'badge-gold':'badge-green';
+      const vt=item.pago?'Pago':dias<0?`Venceu há ${Math.abs(dias)}d`:dias===0?'Vence hoje':`Em ${dias}d`;
+      const dataFmt=item.data.split('-').reverse().join('/');
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);opacity:${item.pago?'.45':'1'}">
+        <span style="font-size:.72rem;min-width:18px;font-weight:800;color:var(--muted)">${idx+1}</span>
+        <span style="font-size:.82rem;flex:1">${dataFmt}</span>
+        <span style="font-weight:800;font-size:.88rem">${fmt(item.valor)}</span>
+        <span class="li-badge ${vc}" style="font-size:.6rem">${vt}</span>
+        ${!item.pago?`<button class="li-badge badge-green" style="cursor:pointer;border:none;font-size:.6rem;padding:3px 7px;white-space:nowrap" onclick="event.stopPropagation();pagarParcela(${c.id},${idx})">✅</button>`:''}
+      </div>`;
+    }).join('');
+    return `<div class="list-item" style="flex-direction:column;align-items:stretch;gap:0;cursor:default">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div class="li-icon rose" style="flex-shrink:0">📒</div>
+        <div style="flex:1;min-width:0">
+          <div class="li-name">${cli.nome}</div>
+          <div class="li-sub">${c.desc} · ${pagas}/${total} pagas</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="li-val">${fmt(saldo)}</div>
+          <button class="li-badge badge-red" style="cursor:pointer;border:none;font-size:.6rem;padding:3px 7px;margin-top:3px" onclick="excluirCredito(${c.id})">🗑️</button>
+        </div>
       </div>
-      <div class="li-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        <div class="li-val">${fmt(saldo)}</div>
-        <button class="li-badge badge-green" style="cursor:pointer;border:none;font-size:.64rem;padding:4px 9px" onclick="event.stopPropagation();pagarParcela(${c.id})">✅ Pagar</button>
-        <button class="li-badge badge-red" style="cursor:pointer;border:none;font-size:.64rem;padding:4px 9px" onclick="event.stopPropagation();excluirCredito(${c.id})">🗑️ Excluir</button>
-      </div>
+      ${parcelasHtml}
     </div>`;
   }).join('')||`<div class="empty-state"><div class="ei">📒</div><div class="et">Nenhum crédito ativo</div></div>`;
 }
-function pagarParcela(id){
-  const c=DB.caderneta.find(x=>x.id==id);
-  if(!c||c.pagas>=c.parcelas)return;
-  if(confirm(`Confirmar pagamento de ${fmt(c.parcelaVal)} de ${getCli(c.clienteId).nome}?`)){
-    c.pagas++;if(c.pagas>=c.parcelas)c.status='quitado';
+function pagarParcela(cadId,idx){
+  const c=DB.caderneta.find(x=>x.id==cadId);
+  if(!c)return;
+  const item=c.itens[idx];
+  if(!item||item.pago)return;
+  if(confirm(`Confirmar pagamento de ${fmt(item.valor)} de ${getCli(c.clienteId).nome}?`)){
+    item.pago=true;
+    if(c.itens.every(i=>i.pago))c.status='quitado';
     SAVE();renderCaderneta();
   }
 }
 function reativarCredito(id){
   if(confirm('Reativar crédito? Confirme que a situação foi regularizada.')){
-    DB.caderneta.find(c=>c.id==id).status='ativo';SAVE();renderCaderneta();
+    const c=DB.caderneta.find(x=>x.id==id);
+    c.status='ativo';
+    SAVE();renderCaderneta();
   }
 }
 function excluirCredito(id){
@@ -1169,27 +1206,55 @@ function resetarApp(){
     }
   }
 }
+// ── Parcelas livres ──
+let _parcelasTemp=[];
 function prepCredito(){
   document.getElementById('cad-cli').innerHTML=DB.clientes.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
-  document.getElementById('cad-val').value='';document.getElementById('cad-parc-val').value='';
-  document.getElementById('cad-parc').value='2';
-  document.getElementById('cad-venc').value=addDays(hoje(),30);
   document.getElementById('cad-desc').value='';
+  _parcelasTemp=[];
+  adicionarParcela();
+  renderParcelasTemp();
 }
-function calcCadParc(){
-  const v=parseFloat(document.getElementById('cad-val').value)||0;
-  const n=parseInt(document.getElementById('cad-parc').value)||1;
-  document.getElementById('cad-parc-val').value=n>0?(v/n).toFixed(2):'';
+function adicionarParcela(){
+  _parcelasTemp.push({valor:'',data:addDays(hoje(),_parcelasTemp.length===0?30:0)});
+  renderParcelasTemp();
+}
+function removerParcela(i){
+  _parcelasTemp.splice(i,1);
+  renderParcelasTemp();
+}
+function renderParcelasTemp(){
+  const lista=document.getElementById('cad-parcelas-lista');
+  if(!lista)return;
+  lista.innerHTML=_parcelasTemp.map((p,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;background:var(--cream);border-radius:10px;padding:10px">
+      <div style="min-width:22px;height:22px;border-radius:50%;background:var(--rose-pale);color:var(--rose-dark);font-weight:900;font-size:.75rem;display:flex;align-items:center;justify-content:center">${i+1}</div>
+      <input type="number" placeholder="Valor R$" min="0" step="0.01" value="${p.valor}"
+        style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:.9rem;font-family:inherit"
+        oninput="_parcelasTemp[${i}].valor=this.value;atualizarTotalCredito()">
+      <input type="date" value="${p.data}"
+        style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:.9rem;font-family:inherit"
+        onchange="_parcelasTemp[${i}].data=this.value">
+      ${_parcelasTemp.length>1?`<button type="button" onclick="removerParcela(${i})" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--err);padding:4px">✕</button>`:'<div style="width:24px"></div>'}
+    </div>`).join('');
+  atualizarTotalCredito();
+}
+function atualizarTotalCredito(){
+  const total=_parcelasTemp.reduce((s,p)=>s+(parseFloat(p.valor)||0),0);
+  const el=document.getElementById('cad-total-calc');
+  if(el)el.textContent=fmt(total);
 }
 function salvarCredito(){
   const cliId=document.getElementById('cad-cli').value;
-  const total=parseFloat(document.getElementById('cad-val').value)||0;
-  if(!total)return alert('Informe o valor');
-  const parcelas=parseInt(document.getElementById('cad-parc').value)||1;
+  if(!cliId)return alert('Selecione um cliente');
+  const itens=_parcelasTemp.map(p=>({valor:parseFloat(p.valor)||0,data:p.data,pago:false}));
+  if(itens.some(p=>!p.valor||p.valor<=0))return alert('Informe o valor de cada parcela');
+  if(itens.some(p=>!p.data))return alert('Informe a data de cada parcela');
+  const total=itens.reduce((s,p)=>s+p.valor,0);
   const cli=DB.clientes.find(c=>c.id==cliId);
-  const usado=DB.caderneta.filter(c=>c.clienteId==cliId&&c.status==='ativo').reduce((s,c)=>s+c.parcelaVal*(c.parcelas-c.pagas),0);
+  const usado=DB.caderneta.filter(c=>c.clienteId==cliId&&c.status==='ativo').reduce((s,c)=>s+c.itens.filter(i=>!i.pago).reduce((a,i)=>a+i.valor,0),0);
   if(cli&&(usado+total)>cli.limite)return alert(`Limite excedido!\nLimite: ${fmt(cli.limite)}\nJá usado: ${fmt(usado)}\nSolicitado: ${fmt(total)}`);
-  DB.caderneta.push({id:Date.now(),clienteId:parseInt(cliId),desc:document.getElementById('cad-desc').value,total,parcelas,parcelaVal:total/parcelas,vencBase:document.getElementById('cad-venc').value,pagas:0,status:'ativo'});
+  DB.caderneta.push({id:Date.now(),clienteId:parseInt(cliId),desc:document.getElementById('cad-desc').value,total,itens,status:'ativo'});
   SAVE();closeModal('modal-credito');renderCaderneta();
 }
 
@@ -1200,7 +1265,7 @@ function renderClientes(){filtroCliStr='';document.getElementById('search-client
 function renderListaClientes(){
   const clis=DB.clientes.filter(c=>!filtroCliStr||c.nome.toLowerCase().includes(filtroCliStr)||c.tel.includes(filtroCliStr));
   document.getElementById('lista-clientes').innerHTML=clis.map(c=>{
-    const usado=DB.caderneta.filter(x=>x.clienteId==c.id&&x.status==='ativo').reduce((s,x)=>s+x.parcelaVal*(x.parcelas-x.pagas),0);
+    const usado=DB.caderneta.filter(x=>x.clienteId==c.id&&x.status==='ativo').reduce((s,x)=>s+cadSaldo(x),0);
     const inad=DB.caderneta.some(x=>x.clienteId==c.id&&x.status==='inadimplente');
     const pct=c.limite>0?Math.min(usado/c.limite*100,100):0;
     const sc=inad?'badge-red':pct>=100?'badge-gold':'badge-green';
@@ -1246,7 +1311,7 @@ function detalheCliente(id){
   const c=DB.clientes.find(x=>x.id==id);if(!c)return;
   const cads=DB.caderneta.filter(x=>x.clienteId==id);
   const vends=DB.vendas.filter(x=>x.clienteId==id);
-  const usado=cads.filter(x=>x.status==='ativo').reduce((s,x)=>s+x.parcelaVal*(x.parcelas-x.pagas),0);
+  const usado=cads.filter(x=>x.status==='ativo').reduce((s,x)=>s+cadSaldo(x),0);
   const inad=cads.some(x=>x.status==='inadimplente');
   const saldoDisp=Math.max(0,c.limite-usado);
   const pct=c.limite>0?Math.min(usado/c.limite*100,100):0;
@@ -1265,12 +1330,31 @@ function detalheCliente(id){
       ${c.cidade?`<div class="alert alert-info" style="margin:0;font-size:.76rem">📍 ${c.cidade}</div>`:''}
     </div>
     <div style="font-size:.72rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mocha-dark);margin-bottom:8px">📒 Caderneta</div>
-    ${cads.filter(x=>x.status==='ativo'||x.status==='inadimplente').map(x=>`
-      <div class="timeline-item" style="margin-bottom:6px">
-        <div class="tl-desc" style="flex:1"><strong>${x.desc}</strong><br><span style="font-size:.7rem;color:var(--muted)">${x.pagas}/${x.parcelas} pagas · ${fmt(x.parcelaVal)}/mês</span></div>
-        <div class="li-badge ${x.status==='ativo'?'badge-green':x.status==='inadimplente'?'badge-red':'badge-gray'}">${x.status}</div>
-        ${x.status==='ativo'?`<button style="margin-left:6px;background:var(--sage-pale);color:#3a6a48;border:none;border-radius:8px;padding:4px 8px;font-size:.7rem;font-weight:700;cursor:pointer" onclick="pagarParcela(${x.id});closeModal('modal-detalhe');detalheCliente(${id})">✅ Pagar</button>`:''}
-      </div>`).join('')||'<div style="color:var(--muted);font-size:.82rem">Sem crédito ativo</div>'}
+    ${cads.filter(x=>x.status==='ativo'||x.status==='inadimplente').map(x=>{
+      const pg=cadPagas(x);const tot=cadTotal(x);const sl=cadSaldo(x);
+      const itensHtml=(x.itens||[]).map((it,idx)=>{
+        const df=diffDays(hoje(),it.data);
+        const vc=it.pago?'badge-gray':df<0?'badge-red':df<=5?'badge-gold':'badge-green';
+        const vt=it.pago?'Pago':df<0?`Venceu há ${Math.abs(df)}d`:df===0?'Hoje':`Em ${df}d`;
+        return `<div style="display:flex;gap:6px;align-items:center;font-size:.75rem;padding:3px 0;opacity:${it.pago?.45:1}">
+          <span style="min-width:14px;color:var(--muted)">${idx+1}</span>
+          <span style="flex:1">${it.data.split('-').reverse().join('/')}</span>
+          <span style="font-weight:800">${fmt(it.valor)}</span>
+          <span class="li-badge ${vc}" style="font-size:.58rem">${vt}</span>
+          ${!it.pago?`<button style="background:var(--sage-pale);color:#3a6a48;border:none;border-radius:6px;padding:2px 6px;font-size:.65rem;font-weight:700;cursor:pointer" onclick="pagarParcela(${x.id},${idx});closeModal('modal-detalhe');detalheCliente(${id})">✅</button>`:''}
+        </div>`;
+      }).join('');
+      return `<div class="timeline-item" style="margin-bottom:8px;flex-direction:column;align-items:stretch">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <strong style="font-size:.82rem">${x.desc}</strong>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span style="font-size:.75rem;font-weight:800">${fmt(sl)}</span>
+            <div class="li-badge ${x.status==='ativo'?'badge-green':'badge-red'}">${pg}/${tot}</div>
+          </div>
+        </div>
+        ${itensHtml}
+      </div>`;
+    }).join('')||'<div style="color:var(--muted);font-size:.82rem">Sem crédito ativo</div>'}
     <div style="font-size:.72rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mocha-dark);margin:14px 0 8px">🛒 Últimas compras</div>
     ${vends.slice(-5).reverse().map(v=>`<div class="timeline-item" style="margin-bottom:6px">
       <div class="tl-date">${v.data.split('-').reverse().join('/')}</div>
@@ -1318,13 +1402,13 @@ function renderFinanceiro(){
   const proj={30:0,60:0,90:0};const eventos=[];
   DB.caderneta.filter(c=>c.status==='ativo').forEach(c=>{
     const cli=getCli(c.clienteId);
-    for(let i=0;i<(c.parcelas-c.pagas);i++){
-      const dt=addDays(c.vencBase,i*30);
-      const diff=diffDays(hoje(),dt);
-      if(diff>=0&&diff<=30){proj[30]+=c.parcelaVal;eventos.push({dt,val:c.parcelaVal,cli:cli.nome,p:i+1+c.pagas,t:c.parcelas});}
-      if(diff>=0&&diff<=60)proj[60]+=c.parcelaVal;
-      if(diff>=0&&diff<=90)proj[90]+=c.parcelaVal;
-    }
+    const itens=c.itens||[];
+    itens.filter(i=>!i.pago).forEach((i,idx)=>{
+      const diff=diffDays(hoje(),i.data);
+      if(diff>=0&&diff<=30){proj[30]+=i.valor;eventos.push({dt:i.data,val:i.valor,cli:cli.nome,p:idx+1,t:itens.length});}
+      if(diff>=0&&diff<=60)proj[60]+=i.valor;
+      if(diff>=0&&diff<=90)proj[90]+=i.valor;
+    });
   });
   document.getElementById('ff-30').textContent=fmtS(proj[30]);
   document.getElementById('ff-60').textContent=fmtS(proj[60]);
