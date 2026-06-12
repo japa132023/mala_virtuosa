@@ -667,40 +667,7 @@ const SAVE=()=>localStorage.setItem('mv-db',JSON.stringify(DB));
 const LOAD=()=>{
   const r=localStorage.getItem('mv-db');
   if(r){DB=JSON.parse(r);return}
-  // Demo data
-  DB.clientes=[
-    {id:1,nome:'Ana Paula Santos',tel:'(11) 98765-4321',limite:800,cidade:'São Paulo',obs:'Tamanho M, semijoias',totalCompras:1250,ultimaCompra:'2025-05-20'},
-    {id:2,nome:'Carla Mendonça',tel:'(11) 91234-5678',limite:500,cidade:'Guarulhos',obs:'',totalCompras:450,ultimaCompra:'2025-05-15'},
-    {id:3,nome:'Juliana Ferreira',tel:'(11) 99876-5432',limite:1000,cidade:'Osasco',obs:'VIP',totalCompras:2800,ultimaCompra:'2025-05-28'},
-    {id:4,nome:'Mariana Costa',tel:'(11) 94567-8901',limite:300,cidade:'Santo André',obs:'',totalCompras:150,ultimaCompra:'2025-04-10'},
-    {id:5,nome:'Fernanda Lima',tel:'(11) 96789-0123',limite:600,cidade:'São Bernardo',obs:'',totalCompras:700,ultimaCompra:'2025-05-05'}
-  ];
-  DB.produtos=[
-    {id:1,nome:'Pulseira Banhada a Ouro',cat:'Semijoias',custo:25,preco:89,qtd:15,qtdMin:3,desc:'Banhado 18k'},
-    {id:2,nome:'Colar Borboleta',cat:'Semijoias',custo:18,preco:65,qtd:8,qtdMin:3,desc:''},
-    {id:3,nome:'Blusa Feminina Floral',cat:'Roupas',custo:35,preco:120,qtd:12,qtdMin:2,desc:'P/M/G'},
-    {id:4,nome:'Tênis Chunky Bege',cat:'Tênis/Calçados',custo:85,preco:249,qtd:5,qtdMin:2,desc:'36-40'},
-    {id:5,nome:'Bolsa Tiracolo Nude',cat:'Bolsas',custo:55,preco:199,qtd:7,qtdMin:2,desc:''},
-    {id:6,nome:'Anel Solitário Prata',cat:'Semijoias',custo:15,preco:55,qtd:20,qtdMin:5,desc:''},
-    {id:7,nome:'Kit Presente Especial',cat:'Presentes',custo:40,preco:130,qtd:4,qtdMin:1,desc:'Caixa decorada'},
-    {id:8,nome:'Brinco Argola Dourado',cat:'Acessórios',custo:12,preco:45,qtd:2,qtdMin:3,desc:'Estoque baixo!'}
-  ];
-  DB.vendas=[
-    {id:1,data:'2025-05-28',clienteId:3,produto:'Pulseira Banhada a Ouro',qtd:2,preco:89,total:178,pgto:'avista',status:'pago'},
-    {id:2,data:'2025-05-27',clienteId:1,produto:'Blusa Feminina Floral',qtd:1,preco:120,total:120,pgto:'parcelado',status:'parcial'},
-    {id:3,data:'2025-05-26',clienteId:2,produto:'Brinco Argola Dourado',qtd:1,preco:45,total:45,pgto:'pix',status:'pago'},
-    {id:4,data:'2025-05-25',clienteId:5,produto:'Bolsa Tiracolo Nude',qtd:1,preco:199,total:199,pgto:'parcelado',status:'parcial'},
-    {id:5,data:'2025-05-24',clienteId:3,produto:'Tênis Chunky Bege',qtd:1,preco:249,total:249,pgto:'cartao',status:'pago'},
-    {id:6,data:'2025-05-23',clienteId:4,produto:'Anel Solitário Prata',qtd:2,preco:55,total:110,pgto:'avista',status:'pago'},
-    {id:7,data:'2025-05-22',clienteId:1,produto:'Kit Presente Especial',qtd:1,preco:130,total:130,pgto:'parcelado',status:'parcial'}
-  ];
-  DB.caderneta=[
-    {id:1,clienteId:1,desc:'Blusa Floral + Kit Presente',total:250,parcelas:3,parcelaVal:83.33,vencBase:'2025-06-05',pagas:0,status:'ativo'},
-    {id:2,clienteId:3,desc:'Compras diversas',total:400,parcelas:4,parcelaVal:100,vencBase:'2025-06-10',pagas:1,status:'ativo'},
-    {id:3,clienteId:5,desc:'Bolsa Tiracolo Nude',total:199,parcelas:2,parcelaVal:99.50,vencBase:'2025-06-15',pagas:0,status:'ativo'},
-    {id:4,clienteId:4,desc:'Colar Borboleta',total:65,parcelas:2,parcelaVal:32.50,vencBase:'2025-04-20',pagas:0,status:'inadimplente'}
-  ];
-  SAVE();
+  // Primeiro uso — banco vazio, pronto para cadastro
 };
 
 // ═══════════ UTILS ═══════════
@@ -1063,6 +1030,7 @@ function renderListaVendas(){
     <div class="li-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
       <div class="li-val">${fmt(v.total)}</div>
       <div class="li-badge ${v.status==='pago'?'badge-green':'badge-gold'}">${v.status==='pago'?'Pago':'Parcial'}</div>
+      <button class="li-badge badge-red" style="cursor:pointer;border:none;font-size:.64rem;padding:4px 9px;margin-top:2px" onclick="excluirVenda(${v.id})">🗑️ Excluir</button>
     </div>
   </div>`).join('')||`<div class="empty-state"><div class="ei">🛒</div><div class="et">Nenhuma venda registrada</div></div>`;
 }
@@ -1134,6 +1102,7 @@ function renderCaderneta(){
         <button class="btn btn-primary" style="font-size:.75rem;padding:9px" onclick="pagarParcela(${c.id})">✅ Pagar</button>
         <button class="btn btn-outline" style="font-size:.75rem;padding:9px" onclick="reativarCredito(${c.id})">🔓 Reativar</button>
         ${cli.tel?`<a href="tel:${cli.tel}" class="btn btn-outline" style="font-size:.75rem;padding:9px">📞</a>`:''}
+        <button class="btn btn-outline" style="font-size:.75rem;padding:9px;color:var(--err);border-color:var(--err)" onclick="excluirCredito(${c.id})">🗑️ Excluir</button>
       </div>
     </div>`;
   }).join(''):`<div class="alert alert-success" style="margin-bottom:8px">✅ Nenhuma cliente inadimplente!</div>`;
@@ -1156,6 +1125,7 @@ function renderCaderneta(){
       <div class="li-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <div class="li-val">${fmt(saldo)}</div>
         <button class="li-badge badge-green" style="cursor:pointer;border:none;font-size:.64rem;padding:4px 9px" onclick="event.stopPropagation();pagarParcela(${c.id})">✅ Pagar</button>
+        <button class="li-badge badge-red" style="cursor:pointer;border:none;font-size:.64rem;padding:4px 9px" onclick="event.stopPropagation();excluirCredito(${c.id})">🗑️ Excluir</button>
       </div>
     </div>`;
   }).join('')||`<div class="empty-state"><div class="ei">📒</div><div class="et">Nenhum crédito ativo</div></div>`;
@@ -1171,6 +1141,16 @@ function pagarParcela(id){
 function reativarCredito(id){
   if(confirm('Reativar crédito? Confirme que a situação foi regularizada.')){
     DB.caderneta.find(c=>c.id==id).status='ativo';SAVE();renderCaderneta();
+  }
+}
+function excluirCredito(id){
+  if(confirm('Excluir este lançamento da caderneta? Esta ação não pode ser desfeita.')){
+    DB.caderneta=DB.caderneta.filter(c=>c.id!=id);SAVE();renderCaderneta();
+  }
+}
+function excluirVenda(id){
+  if(confirm('Excluir esta venda? Esta ação não pode ser desfeita.')){
+    DB.vendas=DB.vendas.filter(v=>v.id!=id);SAVE();renderTab('vendas');updateHeader();
   }
 }
 function prepCredito(){
