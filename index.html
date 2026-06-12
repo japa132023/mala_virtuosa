@@ -58,13 +58,25 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
   display:flex;flex-direction:column;align-items:center;gap:20px;
 }
 .login-logo-wrap{
-  width:72px;height:72px;
-  background:linear-gradient(135deg,var(--rose),var(--mocha));
+  width:96px;height:96px;
+  background:linear-gradient(145deg,#8b4a45 0%,#c47a7a 60%,#d4a0a0 100%);
   border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:32px;box-shadow:0 8px 24px rgba(212,135,138,0.4);
+  font-size:46px;box-shadow:0 12px 36px rgba(107,61,56,0.45),0 0 0 6px rgba(255,255,255,0.15);
+  position:relative;
 }
-.login-title{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--charcoal);text-align:center;line-height:1.1}
-.login-sub{font-size:.8rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;text-align:center}
+.login-logo-wrap::after{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:2px solid rgba(255,255,255,0.3);pointer-events:none;
+}
+.login-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.1rem;font-weight:700;color:var(--charcoal);
+  text-align:center;line-height:1;letter-spacing:.5px;
+}
+.login-sub{
+  font-size:.72rem;color:var(--muted);letter-spacing:2.5px;
+  text-transform:uppercase;text-align:center;margin-top:-8px;
+}
 .pin-dots{display:flex;gap:14px;margin:4px 0}
 .pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--rose-light);background:transparent;transition:all .2s}
 .pin-dot.filled{background:var(--rose);border-color:var(--rose);transform:scale(1.15)}
@@ -904,7 +916,7 @@ function updateHeader(){
   const now=new Date();
   const dias=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   document.getElementById('header-date').textContent=`${now.getDate()} de ${now.toLocaleString('pt-BR',{month:'long'})} · ${dias[now.getDay()]}`;
-  // KPIs header
+  // KPIs header (faixa de status)
   const mes=hoje().slice(0,7);
   const fat=DB.vendas.filter(v=>v.data.startsWith(mes)).reduce((s,v)=>s+v.total,0);
   let custo=0;DB.vendas.filter(v=>v.data.startsWith(mes)).forEach(v=>{const p=DB.produtos.find(p=>p.nome===v.produto);if(p)custo+=p.custo*v.qtd;});
@@ -912,6 +924,20 @@ function updateHeader(){
   document.getElementById('hdr-fat').textContent=fmtS(fat);
   document.getElementById('hdr-lucro').textContent=fmtS(fat-custo);
   document.getElementById('hdr-receber').textContent=fmtS(receber);
+  // KPIs mini-cards da aba início — sempre atualizados
+  const h2=hoje();
+  const vendasHoje=DB.vendas.filter(v=>v.data===h2);
+  const fatHoje=vendasHoje.reduce((s,v)=>s+v.total,0);
+  const inadCount=DB.caderneta.filter(c=>c.status==='inadimplente').length;
+  const estoqueTotal=DB.produtos.reduce((s,p)=>s+p.qtd,0);
+  const elVH=document.getElementById('kpi-vendas-hoje');
+  const elFH=document.getElementById('kpi-fat-hoje');
+  const elInad=document.getElementById('kpi-inad');
+  const elEst=document.getElementById('kpi-estoque-total');
+  if(elVH)elVH.textContent=vendasHoje.length;
+  if(elFH)elFH.textContent=fmtS(fatHoje);
+  if(elInad)elInad.textContent=inadCount;
+  if(elEst)elEst.textContent=estoqueTotal;
 }
 
 // ═══════════ INÍCIO ═══════════
