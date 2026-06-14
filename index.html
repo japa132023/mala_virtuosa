@@ -114,6 +114,66 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
 .pin-hint a{color:var(--rose);text-decoration:none;font-weight:700}
 .login-msg{font-size:.78rem;color:var(--err);font-weight:700;min-height:18px;text-align:center}
 
+
+/* ════ BOAS VINDAS — PREMIUM REDESIGN ════ */
+#screen-login,#screen-setup{
+  background:linear-gradient(160deg,#1a0b09 0%,#3e1e14 28%,#7a4030 58%,#b07050 84%,#d09068 100%);
+  justify-content:center;align-items:center;
+}
+#screen-login::after,#screen-setup::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 110%,rgba(200,140,90,.22) 0%,transparent 55%),
+    radial-gradient(ellipse at -10% 20%,rgba(180,110,70,.10) 0%,transparent 45%);
+}
+#screen-login .login-blob,#screen-setup .login-blob{
+  width:420px!important;height:420px!important;
+  background:radial-gradient(circle,rgba(255,185,120,.07) 0%,transparent 65%)!important;
+  top:-140px!important;right:-110px!important;
+}
+#screen-login .login-blob2,#screen-setup .login-blob2{
+  width:300px!important;height:300px!important;
+  background:radial-gradient(circle,rgba(170,105,65,.07) 0%,transparent 65%)!important;
+  bottom:50px!important;left:-80px!important;
+}
+.login-card,.setup-card{
+  background:rgba(255,255,255,.06)!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 32px 80px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.14)!important;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.login-crown svg{width:130px!important;height:auto!important;
+  filter:drop-shadow(0 0 32px rgba(212,149,106,.62))}
+.login-brand-mala{color:rgba(240,215,185,.78)!important}
+.login-brand-virtuosa{color:#fff!important;font-size:3.2rem!important;
+  text-shadow:0 2px 24px rgba(212,149,106,.45)!important}
+.login-brand-boutique{color:rgba(235,200,165,.50)!important}
+.login-divider::before,.login-divider::after{
+  background:linear-gradient(90deg,transparent,rgba(212,149,106,.45),transparent)!important}
+.login-divider-gem{color:#d4956a!important}
+.login-verse{color:rgba(245,220,195,.76)!important}
+.login-verse span{color:rgba(212,155,100,.88)!important;letter-spacing:2.5px}
+.setup-sub{color:rgba(245,220,195,.72);font-family:'Cormorant Garamond',serif;
+  font-style:italic;font-size:.88rem;text-align:center;line-height:1.55}
+#screen-login .pin-dot,#screen-setup .pin-dot{
+  border-color:rgba(255,255,255,.22)!important;background:transparent!important}
+#screen-login .pin-dot.filled,#screen-setup .pin-dot.filled{
+  background:#d4956a!important;border-color:#e0a878!important;
+  box-shadow:0 0 12px rgba(212,149,106,.65)!important}
+#screen-login .pin-dot.error,#screen-setup .pin-dot.error{
+  background:#e07070!important;border-color:#e07070!important}
+#screen-login .pin-btn,#screen-setup .pin-btn{
+  background:rgba(255,255,255,.07)!important;
+  border:1.5px solid rgba(255,255,255,.13)!important;
+  color:#fff!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#screen-login .pin-btn:active,#screen-setup .pin-btn:active{
+  background:rgba(212,149,106,.28)!important;
+  border-color:rgba(212,149,106,.55)!important;transform:scale(.95)!important}
+#screen-login .pin-btn .sub,#screen-setup .pin-btn .sub{color:rgba(255,255,255,.32)!important}
+#screen-login .pin-btn.del,#screen-setup .pin-btn.del{color:rgba(255,255,255,.42)!important}
+#screen-login .pin-hint,#screen-setup .pin-hint{color:rgba(240,215,185,.42)!important}
+#screen-login .pin-hint a,#screen-setup .pin-hint a{color:rgba(212,149,106,.85)!important}
+#screen-login .login-msg,#screen-setup .login-msg{color:#f0a0a0!important}
 /* ═══════════ MAIN APP ═══════════ */
 #screen-app{background:var(--cream)}
 
