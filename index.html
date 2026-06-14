@@ -65,7 +65,7 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
   display:flex;flex-direction:column;align-items:center;gap:18px;
 }
 /* Crown logo — no image, pure CSS + emoji */
-.login-logo-wrap{display:flex;align-items:center;justify-content:center;background:none;border:none;box-shadow:none}.login-logo-img{width:220px;height:auto;object-fit:contain;filter:drop-shadow(0 6px 20px rgba(107,61,56,0.25))}
+.login-logo-wrap{display:flex;flex-direction:column;align-items:center;gap:0;background:none;border:none;box-shadow:none}.login-crown{display:flex;align-items:center;justify-content:center}
 
 .login-brand{display:flex;flex-direction:column;align-items:center;gap:1px;margin-top:2px}
 .login-brand-mala{
@@ -352,9 +352,107 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
 <div class="screen" id="screen-setup">
   <div class="login-blob"></div><div class="login-blob2"></div>
   <div class="setup-card">
-    <div class="login-logo-wrap"><img src="logo.png" alt="Mala Virtuosa Boutique" class="login-logo-img"></div><div class="login-brand"><span class="login-brand-mala">Mala</span><span class="login-brand-virtuosa">Virtuosa</span><span class="login-brand-boutique">Boutique</span></div></div>
+    <div class="login-logo-wrap"><div class="login-crown"><svg width="110" height="88" viewBox="0 0 110 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#f0c8a0"/>
+    <stop offset="35%" stop-color="#d4956a"/>
+    <stop offset="70%" stop-color="#b86845"/>
+    <stop offset="100%" stop-color="#8b4030"/>
+  </linearGradient>
+  <linearGradient id="rg2" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#f5d8b8"/>
+    <stop offset="100%" stop-color="#c07848"/>
+  </linearGradient>
+  <linearGradient id="rg3" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#f0c8c0"/>
+    <stop offset="100%" stop-color="#c06068"/>
+  </linearGradient>
+  <filter id="cshadow" x="-15%" y="-10%" width="130%" height="140%">
+    <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#7a3828" flood-opacity="0.32"/>
+  </filter>
+</defs>
+<g filter="url(#cshadow)">
+  <!-- Crown main body -->
+  <path d="M8 72 L8 54 C8 54 8 52 10 52 L16 52 L27 18 L40 42 C40 42 41 44 43 44 L55 44 C55 44 57 44 58 42 L71 18 L82 52 L92 52 C94 52 94 54 94 54 L94 72 C94 74 92 74 92 74 L10 74 C8 74 8 72 8 72 Z" fill="url(#rg)"/>
+  <!-- Band highlight -->
+  <path d="M10 52 L92 52 L92 58 L10 58 Z" fill="rgba(255,220,180,0.25)"/>
+  <!-- Left spike highlight -->
+  <path d="M18 28 L22 18 L27 32 Z" fill="rgba(255,230,190,0.3)"/>
+  <!-- Center spike highlight -->
+  <path d="M51 14 L55 6 L59 14 Z" fill="rgba(255,230,190,0.3)"/>
+  <!-- Right spike highlight -->
+  <path d="M85 28 L90 18 L88 32 Z" fill="rgba(255,230,190,0.3)"/>
+</g>
+<!-- Orbs on spike tips -->
+<circle cx="16" cy="14" r="6" fill="url(#rg2)" stroke="#f0c898" stroke-width="1.2"/>
+<circle cx="16" cy="14" r="2.5" fill="rgba(255,255,255,0.55)"/>
+<circle cx="55" cy="7" r="7" fill="url(#rg2)" stroke="#f0c898" stroke-width="1.5"/>
+<circle cx="55" cy="7" r="3" fill="rgba(255,255,255,0.5)"/>
+<circle cx="92" cy="14" r="6" fill="url(#rg2)" stroke="#f0c898" stroke-width="1.2"/>
+<circle cx="92" cy="14" r="2.5" fill="rgba(255,255,255,0.55)"/>
+<!-- Heart gem at center top -->
+<path d="M55 4 C55 4 50 -1 46.5 2 C43 5 46.5 10 55 16 C63.5 10 67 5 63.5 2 C60 -1 55 4 55 4Z" fill="url(#rg3)"/>
+<path d="M55 5 C55 5 51.5 2.5 50 4.5 C48.5 6.5 51 9.5 55 13 C59 9.5 61.5 6.5 60 4.5 C58.5 2.5 55 5 55 5Z" fill="rgba(255,200,210,0.7)"/>
+<!-- Band gems -->
+<ellipse cx="32" cy="63" rx="5" ry="5" fill="url(#rg2)" stroke="#f0c898" stroke-width="1"/>
+<ellipse cx="32" cy="63" rx="2" ry="2" fill="rgba(255,255,255,0.45)"/>
+<ellipse cx="55" cy="63" rx="6.5" ry="6.5" fill="url(#rg)" stroke="#f0c898" stroke-width="1.2"/>
+<ellipse cx="55" cy="63" rx="2.8" ry="2.8" fill="rgba(255,255,255,0.45)"/>
+<ellipse cx="78" cy="63" rx="5" ry="5" fill="url(#rg2)" stroke="#f0c898" stroke-width="1"/>
+<ellipse cx="78" cy="63" rx="2" ry="2" fill="rgba(255,255,255,0.45)"/>
+</svg></div><div class="login-brand"><span class="login-brand-mala">Mala</span><span class="login-brand-virtuosa">Virtuosa</span><span class="login-brand-boutique">Boutique</span></div></div><div class="login-brand"><span class="login-brand-mala">Mala</span><span class="login-brand-virtuosa">Virtuosa</span><span class="login-brand-boutique">Boutique</span></div></div>
     <div>
-      <div class="login-logo-wrap"><img src="logo.png" alt="Mala Virtuosa Boutique" class="login-logo-img"></div><div class="login-brand"><span class="login-brand-mala">Mala</span><span class="login-brand-virtuosa">Virtuosa</span><span class="login-brand-boutique">Boutique</span></div></div>
+      <div class="login-logo-wrap"><div class="login-crown"><svg width="110" height="88" viewBox="0 0 110 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#f0c8a0"/>
+    <stop offset="35%" stop-color="#d4956a"/>
+    <stop offset="70%" stop-color="#b86845"/>
+    <stop offset="100%" stop-color="#8b4030"/>
+  </linearGradient>
+  <linearGradient id="rg2" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#f5d8b8"/>
+    <stop offset="100%" stop-color="#c07848"/>
+  </linearGradient>
+  <linearGradient id="rg3" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#f0c8c0"/>
+    <stop offset="100%" stop-color="#c06068"/>
+  </linearGradient>
+  <filter id="cshadow" x="-15%" y="-10%" width="130%" height="140%">
+    <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#7a3828" flood-opacity="0.32"/>
+  </filter>
+</defs>
+<g filter="url(#cshadow)">
+  <!-- Crown main body -->
+  <path d="M8 72 L8 54 C8 54 8 52 10 52 L16 52 L27 18 L40 42 C40 42 41 44 43 44 L55 44 C55 44 57 44 58 42 L71 18 L82 52 L92 52 C94 52 94 54 94 54 L94 72 C94 74 92 74 92 74 L10 74 C8 74 8 72 8 72 Z" fill="url(#rg)"/>
+  <!-- Band highlight -->
+  <path d="M10 52 L92 52 L92 58 L10 58 Z" fill="rgba(255,220,180,0.25)"/>
+  <!-- Left spike highlight -->
+  <path d="M18 28 L22 18 L27 32 Z" fill="rgba(255,230,190,0.3)"/>
+  <!-- Center spike highlight -->
+  <path d="M51 14 L55 6 L59 14 Z" fill="rgba(255,230,190,0.3)"/>
+  <!-- Right spike highlight -->
+  <path d="M85 28 L90 18 L88 32 Z" fill="rgba(255,230,190,0.3)"/>
+</g>
+<!-- Orbs on spike tips -->
+<circle cx="16" cy="14" r="6" fill="url(#rg2)" stroke="#f0c898" stroke-width="1.2"/>
+<circle cx="16" cy="14" r="2.5" fill="rgba(255,255,255,0.55)"/>
+<circle cx="55" cy="7" r="7" fill="url(#rg2)" stroke="#f0c898" stroke-width="1.5"/>
+<circle cx="55" cy="7" r="3" fill="rgba(255,255,255,0.5)"/>
+<circle cx="92" cy="14" r="6" fill="url(#rg2)" stroke="#f0c898" stroke-width="1.2"/>
+<circle cx="92" cy="14" r="2.5" fill="rgba(255,255,255,0.55)"/>
+<!-- Heart gem at center top -->
+<path d="M55 4 C55 4 50 -1 46.5 2 C43 5 46.5 10 55 16 C63.5 10 67 5 63.5 2 C60 -1 55 4 55 4Z" fill="url(#rg3)"/>
+<path d="M55 5 C55 5 51.5 2.5 50 4.5 C48.5 6.5 51 9.5 55 13 C59 9.5 61.5 6.5 60 4.5 C58.5 2.5 55 5 55 5Z" fill="rgba(255,200,210,0.7)"/>
+<!-- Band gems -->
+<ellipse cx="32" cy="63" rx="5" ry="5" fill="url(#rg2)" stroke="#f0c898" stroke-width="1"/>
+<ellipse cx="32" cy="63" rx="2" ry="2" fill="rgba(255,255,255,0.45)"/>
+<ellipse cx="55" cy="63" rx="6.5" ry="6.5" fill="url(#rg)" stroke="#f0c898" stroke-width="1.2"/>
+<ellipse cx="55" cy="63" rx="2.8" ry="2.8" fill="rgba(255,255,255,0.45)"/>
+<ellipse cx="78" cy="63" rx="5" ry="5" fill="url(#rg2)" stroke="#f0c898" stroke-width="1"/>
+<ellipse cx="78" cy="63" rx="2" ry="2" fill="rgba(255,255,255,0.45)"/>
+</svg></div><div class="login-brand"><span class="login-brand-mala">Mala</span><span class="login-brand-virtuosa">Virtuosa</span><span class="login-brand-boutique">Boutique</span></div></div><div class="login-brand"><span class="login-brand-mala">Mala</span><span class="login-brand-virtuosa">Virtuosa</span><span class="login-brand-boutique">Boutique</span></div></div>
       <div class="login-divider"><span class="login-divider-gem">♦</span></div>
       <div class="setup-sub">Crie seu PIN de 4 dígitos para proteger seu negócio</div>
     </div>
@@ -372,7 +470,56 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
 <div class="screen" id="screen-login">
   <div class="login-blob"></div><div class="login-blob2"></div>
   <div class="login-card">
-    <div class="login-logo-wrap"><img src="logo.png" alt="Mala Virtuosa Boutique" class="login-logo-img"></div><div class="login-brand"><span class="login-brand-mala">Mala</span><span class="login-brand-virtuosa">Virtuosa</span><span class="login-brand-boutique">Boutique</span></div></div>
+    <div class="login-logo-wrap"><div class="login-crown"><svg width="110" height="88" viewBox="0 0 110 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#f0c8a0"/>
+    <stop offset="35%" stop-color="#d4956a"/>
+    <stop offset="70%" stop-color="#b86845"/>
+    <stop offset="100%" stop-color="#8b4030"/>
+  </linearGradient>
+  <linearGradient id="rg2" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#f5d8b8"/>
+    <stop offset="100%" stop-color="#c07848"/>
+  </linearGradient>
+  <linearGradient id="rg3" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#f0c8c0"/>
+    <stop offset="100%" stop-color="#c06068"/>
+  </linearGradient>
+  <filter id="cshadow" x="-15%" y="-10%" width="130%" height="140%">
+    <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#7a3828" flood-opacity="0.32"/>
+  </filter>
+</defs>
+<g filter="url(#cshadow)">
+  <!-- Crown main body -->
+  <path d="M8 72 L8 54 C8 54 8 52 10 52 L16 52 L27 18 L40 42 C40 42 41 44 43 44 L55 44 C55 44 57 44 58 42 L71 18 L82 52 L92 52 C94 52 94 54 94 54 L94 72 C94 74 92 74 92 74 L10 74 C8 74 8 72 8 72 Z" fill="url(#rg)"/>
+  <!-- Band highlight -->
+  <path d="M10 52 L92 52 L92 58 L10 58 Z" fill="rgba(255,220,180,0.25)"/>
+  <!-- Left spike highlight -->
+  <path d="M18 28 L22 18 L27 32 Z" fill="rgba(255,230,190,0.3)"/>
+  <!-- Center spike highlight -->
+  <path d="M51 14 L55 6 L59 14 Z" fill="rgba(255,230,190,0.3)"/>
+  <!-- Right spike highlight -->
+  <path d="M85 28 L90 18 L88 32 Z" fill="rgba(255,230,190,0.3)"/>
+</g>
+<!-- Orbs on spike tips -->
+<circle cx="16" cy="14" r="6" fill="url(#rg2)" stroke="#f0c898" stroke-width="1.2"/>
+<circle cx="16" cy="14" r="2.5" fill="rgba(255,255,255,0.55)"/>
+<circle cx="55" cy="7" r="7" fill="url(#rg2)" stroke="#f0c898" stroke-width="1.5"/>
+<circle cx="55" cy="7" r="3" fill="rgba(255,255,255,0.5)"/>
+<circle cx="92" cy="14" r="6" fill="url(#rg2)" stroke="#f0c898" stroke-width="1.2"/>
+<circle cx="92" cy="14" r="2.5" fill="rgba(255,255,255,0.55)"/>
+<!-- Heart gem at center top -->
+<path d="M55 4 C55 4 50 -1 46.5 2 C43 5 46.5 10 55 16 C63.5 10 67 5 63.5 2 C60 -1 55 4 55 4Z" fill="url(#rg3)"/>
+<path d="M55 5 C55 5 51.5 2.5 50 4.5 C48.5 6.5 51 9.5 55 13 C59 9.5 61.5 6.5 60 4.5 C58.5 2.5 55 5 55 5Z" fill="rgba(255,200,210,0.7)"/>
+<!-- Band gems -->
+<ellipse cx="32" cy="63" rx="5" ry="5" fill="url(#rg2)" stroke="#f0c898" stroke-width="1"/>
+<ellipse cx="32" cy="63" rx="2" ry="2" fill="rgba(255,255,255,0.45)"/>
+<ellipse cx="55" cy="63" rx="6.5" ry="6.5" fill="url(#rg)" stroke="#f0c898" stroke-width="1.2"/>
+<ellipse cx="55" cy="63" rx="2.8" ry="2.8" fill="rgba(255,255,255,0.45)"/>
+<ellipse cx="78" cy="63" rx="5" ry="5" fill="url(#rg2)" stroke="#f0c898" stroke-width="1"/>
+<ellipse cx="78" cy="63" rx="2" ry="2" fill="rgba(255,255,255,0.45)"/>
+</svg></div><div class="login-brand"><span class="login-brand-mala">Mala</span><span class="login-brand-virtuosa">Virtuosa</span><span class="login-brand-boutique">Boutique</span></div></div><div class="login-brand"><span class="login-brand-mala">Mala</span><span class="login-brand-virtuosa">Virtuosa</span><span class="login-brand-boutique">Boutique</span></div></div>
     <div class="login-divider"><span class="login-divider-gem">♦</span></div>
     <div style="text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.82rem;color:var(--muted);line-height:1.5">Seu valor excede o de rubis.<br><span style="font-size:.68rem;letter-spacing:1.5px;font-style:normal">PROVÉRBIOS 31:10</span></div>
     <div class="login-divider"><span class="login-divider-gem">♦</span></div>
@@ -753,7 +900,26 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
     <div class="sheet-handle"></div>
     <div class="sheet-header"><div class="sheet-title" id="detalhe-titulo">Cliente</div><button class="sheet-close" onclick="closeModal('modal-detalhe')">✕</button></div>
     <div class="sheet-body" id="detalhe-body"></div>
-    <div class="sheet-footer"><button class="btn btn-primary" onclick="closeModal('modal-detalhe')">Fechar</button></div>
+    <div class="sheet-footer" style="gap:8px">
+      <button class="btn btn-outline" style="max-width:110px" onclick="editarClienteAtual()">✏️ Editar</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-detalhe')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Parcela -->
+<div class="modal-bg" id="modal-edit-parcela">
+  <div class="modal-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><div class="sheet-title">✏️ Editar Parcela</div><button class="sheet-close" onclick="closeModal('modal-edit-parcela')">✕</button></div>
+    <div class="sheet-body">
+      <div class="form-group"><label>Valor (R$)</label><input id="ep-valor" type="number" step="0.01" placeholder="0,00"></div>
+      <div class="form-group"><label>Data de vencimento</label><input id="ep-data" type="date"></div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn btn-outline" style="max-width:100px" onclick="closeModal('modal-edit-parcela')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEdicaoParcela()">Salvar</button>
+    </div>
   </div>
 </div>
 
@@ -905,6 +1071,8 @@ function goTab(id){
   document.getElementById('navtab-'+id).classList.add('active');
   document.getElementById('page-body').scrollTop=0;
   currentTab=id;
+  const fab=document.getElementById('fab-btn');
+  if(fab)fab.style.display=id==='financeiro'?'none':'flex';
   renderTab(id);
 }
 
@@ -1272,12 +1440,13 @@ function renderCaderneta(){
       const vc=item.pago?'badge-gray':dias<0?'badge-red':dias<=5?'badge-gold':'badge-green';
       const vt=item.pago?'Pago':dias<0?`Venceu há ${Math.abs(dias)}d`:dias===0?'Vence hoje':`Em ${dias}d`;
       const dataFmt=item.data.split('-').reverse().join('/');
-      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);opacity:${item.pago?'.45':'1'}">
+      return `<div style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--border);opacity:${item.pago?'.45':'1'}">
         <span style="font-size:.72rem;min-width:18px;font-weight:800;color:var(--muted)">${idx+1}</span>
         <span style="font-size:.82rem;flex:1">${dataFmt}</span>
         <span style="font-weight:800;font-size:.88rem">${fmt(item.valor)}</span>
         <span class="li-badge ${vc}" style="font-size:.6rem">${vt}</span>
         ${!item.pago?`<button class="li-badge badge-green" style="cursor:pointer;border:none;font-size:.6rem;padding:3px 7px;white-space:nowrap" onclick="event.stopPropagation();pagarParcela(${c.id},${idx})">✅</button>`:''}
+        ${!item.pago?`<button style="background:none;border:none;font-size:.82rem;cursor:pointer;padding:2px 4px;color:var(--muted)" onclick="event.stopPropagation();editarParcela(${c.id},${idx},null)" title="Editar">✏️</button>`:''}
       </div>`;
     }).join('');
     return `<div class="list-item" style="flex-direction:column;align-items:stretch;gap:0;cursor:default">
@@ -1311,6 +1480,29 @@ function pagarParcela(cadId,idx,origemClienteId){
       renderCaderneta();
     }
   }
+}
+let _editParcela={cadId:null,idx:null,cliId:null};
+function editarParcela(cadId,idx,origemClienteId){
+  const c=DB.caderneta.find(x=>x.id==cadId);if(!c)return;
+  const item=c.itens[idx];if(!item)return;
+  _editParcela={cadId,idx,cliId:origemClienteId||null};
+  document.getElementById('ep-valor').value=item.valor;
+  document.getElementById('ep-data').value=item.data;
+  openModal('modal-edit-parcela');
+}
+function salvarEdicaoParcela(){
+  const c=DB.caderneta.find(x=>x.id==_editParcela.cadId);if(!c)return;
+  const item=c.itens[_editParcela.idx];if(!item)return;
+  const novoValor=parseFloat(document.getElementById('ep-valor').value);
+  const novaData=document.getElementById('ep-data').value;
+  if(!novoValor||novoValor<=0)return alert('Informe um valor válido.');
+  if(!novaData)return alert('Informe a data.');
+  item.valor=novoValor;
+  item.data=novaData;
+  SAVE();
+  closeModal('modal-edit-parcela');
+  if(_editParcela.cliId){detalheCliente(_editParcela.cliId);}
+  else{renderCaderneta();}
 }
 function reativarCredito(id){
   if(confirm('Reativar crédito? Confirme que a situação foi regularizada.')){
@@ -1538,11 +1730,29 @@ function renderListaClientes(){
     </div>`;
   }).join('')||`<div class="empty-state"><div class="ei">👥</div><div class="et">Nenhuma cliente encontrada</div></div>`;
 }
+let _editingClienteId=null;
 function prepCliente(){
+  _editingClienteId=null;
   ['c-nome','c-tel','c-cidade','c-obs'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('c-limite').value='500';
-  // Mostra botão agenda apenas se a API estiver disponível (Android Chrome / iOS Safari)
   document.getElementById('btn-agenda').style.display='contacts' in navigator?'block':'none';
+  document.querySelector('#modal-cliente .sheet-title').textContent='👤 Novo Cliente';
+}
+function editarCliente(id){
+  const c=DB.clientes.find(x=>x.id==id);if(!c)return;
+  _editingClienteId=id;
+  document.getElementById('c-nome').value=c.nome||'';
+  document.getElementById('c-tel').value=c.tel||'';
+  document.getElementById('c-cidade').value=c.cidade||'';
+  document.getElementById('c-obs').value=c.obs||'';
+  document.getElementById('c-limite').value=c.limite||500;
+  document.getElementById('btn-agenda').style.display='none';
+  document.querySelector('#modal-cliente .sheet-title').textContent='✏️ Editar Cliente';
+  closeModal('modal-detalhe');
+  openModal('modal-cliente');
+}
+function editarClienteAtual(){
+  if(_detalheClienteId)editarCliente(_detalheClienteId);
 }
 async function importarDaAgenda(){
   try{
@@ -1558,10 +1768,19 @@ async function importarDaAgenda(){
 function salvarCliente(){
   const nome=document.getElementById('c-nome').value.trim();
   if(!nome)return alert('Informe o nome');
-  DB.clientes.push({id:Date.now(),nome,tel:document.getElementById('c-tel').value,limite:parseFloat(document.getElementById('c-limite').value)||500,cidade:document.getElementById('c-cidade').value,obs:document.getElementById('c-obs').value,totalCompras:0,ultimaCompra:null});
+  const dados={nome,tel:document.getElementById('c-tel').value,limite:parseFloat(document.getElementById('c-limite').value)||500,cidade:document.getElementById('c-cidade').value,obs:document.getElementById('c-obs').value};
+  if(_editingClienteId){
+    const c=DB.clientes.find(x=>x.id==_editingClienteId);
+    if(c){Object.assign(c,dados);}
+    _editingClienteId=null;
+  } else {
+    DB.clientes.push({id:Date.now(),...dados,totalCompras:0,ultimaCompra:null});
+  }
   SAVE();closeModal('modal-cliente');renderClientes();
 }
+let _detalheClienteId=null;
 function detalheCliente(id){
+  _detalheClienteId=id;
   const c=DB.clientes.find(x=>x.id==id);if(!c)return;
   const cads=DB.caderneta.filter(x=>x.clienteId==id);
   const vends=DB.vendas.filter(x=>x.clienteId==id);
@@ -1610,7 +1829,8 @@ function detalheCliente(id){
           <span style="flex:1">${it.data.split('-').reverse().join('/')}</span>
           <span style="font-weight:800">${fmt(it.valor)}</span>
           <span class="li-badge ${vc}" style="font-size:.58rem">${vt}</span>
-          ${!it.pago?`<button style="background:var(--sage-pale);color:#2d5a3d;border:1.5px solid var(--sage);border-radius:8px;padding:4px 10px;font-size:.7rem;font-weight:800;cursor:pointer" onclick="pagarParcela(${x.id},${idx},${id})">Receber</button>`:''}
+          ${!it.pago?`<button style="background:var(--sage-pale);color:#2d5a3d;border:1.5px solid var(--sage);border-radius:8px;padding:4px 8px;font-size:.7rem;font-weight:800;cursor:pointer" onclick="pagarParcela(${x.id},${idx},${id})">✅</button>`:''}
+          ${!it.pago?`<button style="background:var(--gold-pale);color:var(--gold-dark);border:1.5px solid var(--gold-light);border-radius:8px;padding:4px 8px;font-size:.7rem;font-weight:800;cursor:pointer" onclick="editarParcela(${x.id},${idx},${id})">✏️</button>`:''}
         </div>`;
       }).join('');
       return `<div class="list-card" style="margin-bottom:8px;padding:10px 12px">
