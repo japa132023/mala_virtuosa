@@ -522,6 +522,7 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
         <div class="mini-card"><div class="mc-icon">⚠️</div><div class="mc-val" id="est-baixo" style="color:var(--err)">0</div><div class="mc-label">Baixo</div></div>
       </div>
       <div class="search-wrap"><input class="search-input" placeholder="Buscar produto..." oninput="filtrarEstoque(this.value)" id="search-estoque"></div>
+      <div class="sec-hdr"><div class="sec-title">📦 Produtos</div><div class="sec-action" onclick="prepProduto();openModal('modal-produto')">＋ Novo</div></div>
       <div class="list-card" id="lista-estoque"></div>
     </div>
 
@@ -538,6 +539,7 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
         <div class="toggle-btn" onclick="filtrarVendas('avista',this)">À Vista</div>
         <div class="toggle-btn" onclick="filtrarVendas('parcelado',this)">Parcelado</div>
       </div>
+      <div class="sec-hdr"><div class="sec-title">🛒 Histórico</div><div class="sec-action" onclick="prepVenda();openModal('modal-venda')">＋ Venda</div></div>
       <div class="list-card" id="lista-vendas"></div>
     </div>
 
@@ -553,12 +555,13 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
       <div class="sec-hdr"><div class="sec-title">⚠️ Inadimplentes</div></div>
       <div id="lista-inad-cad"></div>
 
-      <div class="sec-hdr" style="margin-top:4px"><div class="sec-title">📒 Caderneta Ativa</div></div>
+      <div class="sec-hdr" style="margin-top:4px"><div class="sec-title">📒 Caderneta Ativa</div><div class="sec-action" onclick="prepCredito();openModal('modal-credito')">＋ Novo</div></div>
       <div class="list-card" id="lista-caderneta"></div>
     </div>
 
     <!-- ── CLIENTES ── -->
     <div class="tab-page" id="tab-clientes">
+      <div class="sec-hdr"><div class="sec-title">👥 Clientes</div><div class="sec-action" onclick="prepCliente();openModal('modal-cliente')">＋ Novo</div></div>
       <div class="search-wrap"><input class="search-input" placeholder="Buscar cliente..." oninput="filtrarClientes(this.value)" id="search-clientes"></div>
       <div class="list-card" id="lista-clientes"></div>
     </div>
@@ -986,7 +989,7 @@ function goTab(id){
   document.getElementById('page-body').scrollTop=0;
   currentTab=id;
   const fab=document.getElementById('fab-btn');
-  const hideFab=['financeiro','inicio'];
+  const hideFab=['financeiro','inicio','estoque','vendas','caderneta','clientes'];
   if(fab){fab.style.display=hideFab.includes(id)?'none':'flex';fab.classList.remove('fab-hidden');}
   _fabSt=0;_fabHid=false;
   renderTab(id);
