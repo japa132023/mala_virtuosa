@@ -300,9 +300,10 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
   display:flex;align-items:center;justify-content:center;
   font-size:1.4rem;color:#fff;
   box-shadow:0 6px 20px rgba(107,61,56,.45);
-  transition:transform .2s,box-shadow .2s;z-index:50;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s,box-shadow .2s;z-index:50;
 }
 .fab:active{transform:scale(.92)}
+.fab.fab-hidden{transform:scale(.8) translateY(80px);opacity:0;pointer-events:none}
 
 /* ── MODAL ── */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(74,53,48,.5);z-index:200;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
@@ -986,11 +987,33 @@ function goTab(id){
   currentTab=id;
   const fab=document.getElementById('fab-btn');
   const hideFab=['financeiro','inicio'];
-  if(fab)fab.style.display=hideFab.includes(id)?'none':'flex';
+  if(fab){fab.style.display=hideFab.includes(id)?'none':'flex';fab.classList.remove('fab-hidden');}
+  _fabSt=0;_fabHid=false;
   renderTab(id);
 }
 
-function renderTab(id){
+
+// FAB auto-hide on scroll
+var _fabSt=0,_fabHid=false,_fabTimer;
+(function(){
+  var pb=document.getElementById('page-body');
+  if(!pb)return;
+  pb.addEventListener('scroll',function(){
+    var fab=document.getElementById('fab-btn');
+    if(!fab||fab.style.display==='none')return;
+    var st=this.scrollTop;
+    clearTimeout(_fabTimer);
+    if(st>_fabSt+6&&!_fabHid){
+      fab.classList.add('fab-hidden');_fabHid=true;
+    }else if(st<_fabSt-6&&_fabHid){
+      fab.classList.remove('fab-hidden');_fabHid=false;
+    }
+    _fabSt=st;
+    _fabTimer=setTimeout(function(){
+      if(_fabHid){var f=document.getElementById('fab-btn');if(f){f.classList.remove('fab-hidden');_fabHid=false;}}
+    },900);
+  },{passive:true});
+})();function renderTab(id){
   if(id==='inicio')renderInicio();
   else if(id==='estoque')renderEstoque();
   else if(id==='vendas')renderVendas();
