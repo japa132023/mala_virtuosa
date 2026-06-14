@@ -140,7 +140,7 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
 .status-card .sc-val{font-size:1.1rem;font-weight:800;color:#fff;margin-top:2px;font-family:'Cormorant Garamond',serif}
 
 /* ── SCROLL AREA ── */
-.page-body{flex:1;overflow-y:auto;padding:16px 16px calc(var(--nav-h) + 16px);-webkit-overflow-scrolling:touch}
+.page-body{flex:1;overflow-y:auto;padding:16px 16px calc(var(--nav-h) + 84px);-webkit-overflow-scrolling:touch}
 .page-body::-webkit-scrollbar{display:none}
 
 /* ── BOTTOM NAV ── */
@@ -342,7 +342,7 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
 
 /* safe area */
 @supports(padding:max(0px)){
-  .page-body{padding-bottom:max(calc(var(--nav-h)+16px), calc(var(--nav-h)+env(safe-area-inset-bottom)))}
+  .page-body{padding-bottom:max(calc(var(--nav-h)+84px), calc(var(--nav-h)+env(safe-area-inset-bottom)+68px))}
 }
 </style>
 </head>
@@ -925,7 +925,8 @@ function goTab(id){
   document.getElementById('page-body').scrollTop=0;
   currentTab=id;
   const fab=document.getElementById('fab-btn');
-  if(fab)fab.style.display=id==='financeiro'?'none':'flex';
+  const hideFab=['financeiro','inicio'];
+  if(fab)fab.style.display=hideFab.includes(id)?'none':'flex';
   renderTab(id);
 }
 
